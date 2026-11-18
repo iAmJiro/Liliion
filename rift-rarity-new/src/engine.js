@@ -1,66 +1,313 @@
-/** Pure game rules: no DOM and no browser dependencies. */
-export const TIER_NAMES=['Common','Uncommon','Rare','Epic','Mythic'];
-export const BASE_DEPTH=[100,200,350,550,800];
-export const BIOMES=[
-  {min:0,key:'shoals',name:'SUNLIT SHOALS',relic:'Pearl of the Shoals'},
-  {min:1000,key:'temple',name:'SUNKEN TEMPLE',relic:'Temple Compass'},
-  {min:2500,key:'forest',name:'ABYSSAL FOREST',relic:'Luminous Frond'},
-  {min:4000,key:'trench',name:'VOID TRENCH',relic:'Voidglass Shard'},
-  {min:6000,key:'celestial',name:'CELESTIAL DEEP',relic:'Starlit Crown'}
+/** Pure catalogue lookup and scoring rules. No DOM, timers or network requests. */
+import { CATALOG } from "./data/content.js";
+
+export const TIER_NAMES = ["Common", "Uncommon", "Rare", "Epic", "Mythic"];
+export const BASE_DEPTH = [100, 200, 350, 550, 800];
+export const BIOMES = [
+  {
+    min: 0,
+    key: "shoals",
+    name: "SUNLIT SHOALS",
+    relic: "Pearl of the Shoals",
+    color: "#61dadd",
+  },
+  {
+    min: 1000,
+    key: "temple",
+    name: "SUNKEN TEMPLE",
+    relic: "Temple Compass",
+    color: "#65b9ee",
+  },
+  {
+    min: 2500,
+    key: "forest",
+    name: "ABYSSAL FOREST",
+    relic: "Luminous Frond",
+    color: "#8aa8ff",
+  },
+  {
+    min: 4000,
+    key: "trench",
+    name: "VOID TRENCH",
+    relic: "Voidglass Shard",
+    color: "#c08cff",
+  },
+  {
+    min: 6000,
+    key: "celestial",
+    name: "CELESTIAL DEEP",
+    relic: "Starlit Crown",
+    color: "#f1cf79",
+  },
 ];
-export const norm=s=>String(s??'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]/g,'');
-export function hashSeed(s){let n=2166136261;for(const c of String(s)){n^=c.charCodeAt(0);n=Math.imul(n,16777619)}return n>>>0}
-export function mulberry32(seed){return function(){let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296}}
-export function shuffle(list,random=Math.random){const a=[...list];for(let i=a.length-1;i>0;i--){let j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-export function chooseQuestions(bank,seed=Date.now(),count=7){const rng=mulberry32(hashSeed(seed));const categories=['champions','items','map'];const targets=count===7?{champions:3,items:2,map:2}:{};const chosen=[];const selected=new Set();for(const category of categories){for(const q of shuffle(bank.filter(q=>q.category===category),rng).slice(0,targets[category]||0)){chosen.push(q);selected.add(q.id)}}for(const q of shuffle(bank.filter(q=>!selected.has(q.id)),rng)){if(chosen.length>=count)break;chosen.push(q)}return shuffle(chosen,rng)}
-export function validateBank(bank){const errors=[],ids=new Set();for(const q of bank){if(!q.id||ids.has(q.id))errors.push('Duplicate/empty id '+q.id);ids.add(q.id);if(!['champions','items','map'].includes(q.category))errors.push('Invalid category '+q.id);if(!q.prompt||!Array.isArray(q.answers)||!q.answers.length)errors.push('Empty question '+q.id);const seen=new Set();for(const a of q.answers||[]){const n=norm(a.name);if(!n||seen.has(n))errors.push('Duplicate/empty answer in '+q.id+': '+a.name);seen.add(n);if(!Number.isInteger(a.priorTier)||a.priorTier<1||a.priorTier>5)errors.push('Invalid tier in '+q.id)}}return errors}
-/** Flexible punctuation and common aliases without accepting unrelated guesses. */
-export const GLOBAL_ALIASES={
-  'kaysa':'kaisa','kaisa':'kaisa','khazix':'khazix','chogath':'chogath','reksai':'reksai','velkoz':'velkoz','belveth':'belveth','kogmaw':'kogmaw','aurelionsol':'aurelionsol','jarvan4':'jarvaniv','j4':'jarvaniv','mf':'missfortune','tf':'twistedfate','lb':'leblanc','wukong':'wukong','monkeyking':'wukong',
-  'nunu':'nunuandwillump','willump':'nunuandwillump','drmundo':'drmundo','mercs':'mercurystreads','zhonyas':'zhonyashourglass','rabadons':'rabadonsdeathcap','bork':'bladeoftheruinedking','botrk':'bladeoftheruinedking','ie':'infinityedge','ga':'guardianangel','pd':'phantomdancer','frozenheart':'frozenheart','bluebuff':'bluesentinel','redbuff':'redbrambleback','scuttle':'riftscuttler','scuttlecrab':'riftscuttler','baron':'baronnashor','herald':'riftherald'
-};
-/** Bounded edit-distance matcher. Exact spellings and known aliases always take precedence.
- * Only auto-correct unambiguous, close typos within eligible answers for this question.
- * Does not treat a semantically invalid champion as a valid answer. */
-export function editDistance(a,b,max=2){
-  if(Math.abs(a.length-b.length)>max)return max+1;
-  let previous=Array.from({length:b.length+1},(_,i)=>i);
-  for(let i=1;i<=a.length;i++){
-    const current=[i];let lowest=i;
-    for(let j=1;j<=b.length;j++){
-      const cost=a[i-1]===b[j-1]?0:1;
-      const value=Math.min(previous[j]+1,current[j-1]+1,previous[j-1]+cost);
-      current.push(value);lowest=Math.min(lowest,value);
+export const norm = (value) =>
+  String(value ?? "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]/g, "");
+
+export function hashSeed(value) {
+  let n = 2166136261;
+  for (const char of String(value)) {
+    n ^= char.charCodeAt(0);
+    n = Math.imul(n, 16777619);
+  }
+  return n >>> 0;
+}
+export function mulberry32(seed) {
+  return () => {
+    let n = (seed += 0x6d2b79f5);
+    n = Math.imul(n ^ (n >>> 15), n | 1);
+    n ^= n + Math.imul(n ^ (n >>> 7), n | 61);
+    return ((n ^ (n >>> 14)) >>> 0) / 4294967296;
+  };
+}
+export function shuffle(values, random) {
+  const result = [...values];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+export function chooseQuestions(bank, seed, count = 7, category = "all") {
+  const rng = mulberry32(hashSeed(seed));
+  const available = bank.filter(
+    (q) => category === "all" || q.category === category,
+  );
+  const chosen = [];
+  if (count === 7 && category === "all") {
+    for (const [group, amount] of [
+      ["champions", 3],
+      ["items", 2],
+      ["map", 2],
+    ]) {
+      chosen.push(
+        ...shuffle(
+          available.filter((q) => q.category === group),
+          rng,
+        ).slice(0, amount),
+      );
     }
-    if(lowest>max)return max+1;
-    previous=current;
   }
-  return previous[b.length];
+  const ids = new Set(chosen.map((q) => q.id));
+  const remaining = shuffle(
+    available.filter((q) => !ids.has(q.id)),
+    rng,
+  );
+  chosen.push(...remaining.slice(0, Math.max(0, count - chosen.length)));
+  return shuffle(chosen, rng);
 }
-export function matchAnswer(question,input){
-  const raw=norm(input);
-  if(!raw)return null;
-  const canonical=GLOBAL_ALIASES[raw]||raw;
-  const answers=question.answers||[];
-  for(const answer of answers){
-    const named=norm(answer.name);
-    if(named===canonical||named===raw)return {answer,corrected:false};
+
+const catalogIndices = new WeakMap();
+function indexFor(catalog) {
+  if (catalogIndices.has(catalog)) return catalogIndices.get(catalog);
+  const exact = new Map(),
+    aliases = new Map(),
+    byId = new Map();
+  const append = (map, key, entity) => {
+    if (!key) return;
+    if (!map.has(key)) map.set(key, []);
+    if (!map.get(key).some((x) => x.id === entity.id))
+      map.get(key).push(entity);
+  };
+  for (const entity of catalog) {
+    byId.set(entity.id, entity);
+    append(exact, norm(entity.name), entity);
+    for (const alias of entity.aliases || [])
+      append(aliases, norm(alias), entity);
   }
-  // Never autocorrect one-, two- or three-letter responses (e.g. "vi").
-  if(canonical.length<4)return null;
-  const maxDistance=canonical.length>=7?2:1;
-  const candidates=answers.map(answer=>({answer,distance:editDistance(canonical,norm(answer.name),maxDistance)}))
-    .filter(candidate=>candidate.distance<=maxDistance && candidate.distance/Math.max(canonical.length,norm(candidate.answer.name).length)<=0.25)
-    .sort((a,b)=>a.distance-b.distance);
-  if(!candidates.length || (candidates[1]&&candidates[1].distance===candidates[0].distance))return null;
-  return {answer:candidates[0].answer,corrected:true};
+  const index = { exact, aliases, byId };
+  catalogIndices.set(catalog, index);
+  return index;
 }
-export function resolveAnswer(question,input){return matchAnswer(question,input)?.answer||null}
-/** Weighted prior rarity estimator. In this offline release tiers are seeded from curated editorial bands, not live answer analytics. */
-export function rarityFor(answer,observed=null){const priorTier=answer.priorTier;const priors=[.36,.19,.085,.029,.007];const prior=priors[priorTier-1];if(!observed||observed.total<100)return priorTier;const own=Math.max(0,observed.count||0),total=Math.max(0,observed.total);const frequency=(own+100*prior)/(total+100);return frequency>=.20?1:frequency>=.08?2:frequency>=.03?3:frequency>=.01?4:5}
-export function comboMultiplier(streak){return Math.min(1.4,1+Math.max(0,streak-1)*.1)}
-export function award(answer,streak,observed){const tier=rarityFor(answer,observed);const multiplier=comboMultiplier(streak);return {tier,tierName:TIER_NAMES[tier-1],base:BASE_DEPTH[tier-1],multiplier,depth:Math.round(BASE_DEPTH[tier-1]*multiplier)}}
-export function biomeFor(depth){return [...BIOMES].reverse().find(b=>depth>=b.min)||BIOMES[0]}
-export function dailyKey(now=new Date()){return now.toISOString().slice(0,10)}
-export function levelFor(xp){return Math.floor(Math.sqrt(Math.max(0,xp)/150))+1}
-export function formatDepth(n){return new Intl.NumberFormat('en-NZ').format(n)+' m'}
+export function getEntity(id, catalog = CATALOG) {
+  return indexFor(catalog).byId.get(id) || null;
+}
+
+/** Optimal-string-alignment distance: adjacent transpositions count as one typo. */
+export function editDistance(a, b, max = Infinity) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  const rows = [Array.from({ length: b.length + 1 }, (_, j) => j)];
+  for (let i = 1; i <= a.length; i++) {
+    const row = [i];
+    for (let j = 1; j <= b.length; j++) {
+      row[j] = Math.min(
+        rows[i - 1][j] + 1,
+        row[j - 1] + 1,
+        rows[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        row[j] = Math.min(row[j], rows[i - 2][j - 2] + 1);
+      }
+    }
+    rows.push(row);
+  }
+  return rows[a.length][b.length];
+}
+const unresolved = (status, candidates = []) => ({
+  status,
+  entity: null,
+  corrected: false,
+  candidates,
+});
+const matched = (entity, corrected, method) => ({
+  status: "matched",
+  entity,
+  corrected,
+  candidates: [],
+  method,
+});
+
+/** Resolve identity first. Eligibility belongs to the question, never to spelling correction. */
+export function resolveInput(input, category = "all", catalog = CATALOG) {
+  const key = norm(input);
+  if (!key || key.length > 80) return unresolved("unknown");
+  const { exact, aliases } = indexFor(catalog);
+  // A real name ALWAYS wins over aliases or fuzzy matches, even in another category.
+  for (const [map, method] of [
+    [exact, "exact"],
+    [aliases, "alias"],
+  ]) {
+    const found = map.get(key);
+    if (found?.length === 1)
+      return matched(
+        found[0],
+        method === "alias" && norm(found[0].name) !== key,
+        method,
+      );
+    if (found?.length > 1) return unresolved("ambiguous", [...found]);
+  }
+  // Short guesses such as V, Vi and Jax are only recognised by exact identity/alias.
+  if (key.length < 4) return unresolved("unknown");
+  const pool = catalog.filter(
+    (e) => category === "all" || e.category === category,
+  );
+  const prefixes = pool.filter((e) => norm(e.name).startsWith(key));
+  if (prefixes.length === 1) return matched(prefixes[0], true, "prefix");
+  if (prefixes.length > 1) return unresolved("ambiguous", prefixes.slice(0, 6));
+  const maxDistance = key.length >= 8 ? 2 : 1;
+  const scored = pool
+    .map((entity) => {
+      // Do not fuzz short nicknames; explicit aliases remain generously accepted.
+      const names = [
+        entity.name,
+        ...(entity.aliases || []).filter((alias) => norm(alias).length >= 5),
+      ];
+      const distances = names.map((name) => {
+        const canonical = norm(name);
+        const distance = editDistance(key, canonical, maxDistance);
+        return distance / Math.max(key.length, canonical.length) <= 0.25
+          ? distance
+          : Infinity;
+      });
+      return { entity, distance: Math.min(...distances) };
+    })
+    .filter((x) => x.distance <= maxDistance)
+    .sort(
+      (a, b) =>
+        a.distance - b.distance || a.entity.name.localeCompare(b.entity.name),
+    );
+  if (!scored.length) return unresolved("unknown");
+  const closest = scored.filter((x) => x.distance === scored[0].distance);
+  if (closest.length > 1)
+    return unresolved(
+      "ambiguous",
+      closest.slice(0, 6).map((x) => x.entity),
+    );
+  return matched(closest[0].entity, true, "typo");
+}
+
+/** Name assist searches the entire category, not the answers to the current question. */
+export function suggestions(
+  input,
+  category = "all",
+  catalog = CATALOG,
+  limit = 6,
+) {
+  const key = norm(input);
+  if (key.length < 2) return [];
+  const ranked = catalog
+    .filter((e) => category === "all" || e.category === category)
+    .map((entity) => {
+      const name = norm(entity.name);
+      const alias = (entity.aliases || []).map(norm);
+      const rank =
+        name === key
+          ? 0
+          : alias.includes(key)
+            ? 1
+            : name.startsWith(key)
+              ? 2
+              : alias.some((a) => a.startsWith(key))
+                ? 3
+                : name.includes(key)
+                  ? 4
+                  : Infinity;
+      return { entity, rank };
+    })
+    .filter((x) => Number.isFinite(x.rank))
+    .sort(
+      (a, b) => a.rank - b.rank || a.entity.name.localeCompare(b.entity.name),
+    );
+  if (ranked.length) return ranked.slice(0, limit).map((x) => x.entity);
+  const result = resolveInput(input, category, catalog);
+  return result.status === "matched"
+    ? [result.entity]
+    : result.candidates.slice(0, limit);
+}
+
+/** Rarity is an editorial knowledge score, not a claim about live player pick rates. */
+export function rarityFor(entity) {
+  const tier = entity?.tier ?? entity?.priorTier ?? 2;
+  return Number.isInteger(tier) ? Math.max(1, Math.min(5, tier)) : 2;
+}
+export function comboMultiplier(streak) {
+  return Math.min(1.4, 1 + Math.max(0, streak - 1) * 0.1);
+}
+export function award(entity, streak) {
+  const tier = rarityFor(entity),
+    multiplier = comboMultiplier(streak);
+  return {
+    tier,
+    tierName: TIER_NAMES[tier - 1],
+    base: BASE_DEPTH[tier - 1],
+    multiplier,
+    depth: Math.round(BASE_DEPTH[tier - 1] * multiplier),
+  };
+}
+export function biomeFor(depth) {
+  return [...BIOMES].reverse().find((b) => depth >= b.min) || BIOMES[0];
+}
+export function dailyKey(now = new Date()) {
+  return now.toISOString().slice(0, 10);
+}
+export function levelFor(xp) {
+  return Math.floor(Math.sqrt(Math.max(0, xp) / 150)) + 1;
+}
+export function formatDepth(depth) {
+  return `${new Intl.NumberFormat("en-NZ").format(Math.round(depth))} m`;
+}
+export function validateBank(bank, catalog = CATALOG) {
+  const errors = [],
+    ids = new Set();
+  for (const q of bank) {
+    if (!q.id || ids.has(q.id))
+      errors.push(`Duplicate or missing question id: ${q.id}`);
+    ids.add(q.id);
+    if (!["champions", "items", "map"].includes(q.category))
+      errors.push(`Invalid category: ${q.id}`);
+    if (!q.prompt || !Array.isArray(q.answerIds) || !q.answerIds.length)
+      errors.push(`Empty question: ${q.id}`);
+    if (new Set(q.answerIds).size !== q.answerIds.length)
+      errors.push(`Duplicate answers: ${q.id}`);
+    for (const id of q.answerIds || []) {
+      const entity = getEntity(id, catalog);
+      if (!entity || entity.category !== q.category)
+        errors.push(`Invalid answer ${id} for ${q.id}`);
+    }
+  }
+  return errors;
+}

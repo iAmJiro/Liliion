@@ -1,177 +1,41 @@
-import { useEffect, useMemo, useState } from "react";
-import { norm, matchAnswer } from "../engine.js";
-import Ocean from "./Ocean.jsx";
-const MODE_NAMES = {
-  classic: "CLASSIC DIVE",
-  daily: "DAILY SEVEN",
-  endless: "ENDLESS ABYSS",
-};
-const ICONS = ["●", "◆", "✦", "✧", "✹"];
-const COLORS = ["#a8bebf", "#60be91", "#69a6e2", "#c690e7", "#eccd7c"];
+import {useEffect,useMemo,useRef,useState} from 'react';
+import {suggestions,resolveInput,comboMultiplier} from '../engine.js';
+import {CATALOG} from '../data/content.js';
+import {MODE_NAMES,categoryIcon} from './Home.jsx';
+import Ocean from './Ocean.jsx';
+import Icon from './Icon.jsx';
+import {Avatar} from './Knowledge.jsx';
 
-function Game({ game, onAnswer, onSkip, onNext, onLeave }) {
-  const [input, setInput] = useState("");
-  const [now, setNow] = useState(Date.now());
-  const question = game.questions[game.index];
-  useEffect(() => {
-    setInput("");
-    setNow(Date.now());
-  }, [game.index, game.deadline]);
-  useEffect(() => {
-    if (game.status !== "answering") return;
-    const tick = () => {
-      const time = Date.now();
-      setNow(time);
-      if (time >= game.deadline) onAnswer("", true);
-    };
-    const timer = setInterval(tick, 70);
-    return () => clearInterval(timer);
-  }, [game.deadline, game.status, onAnswer]);
-  const ms = game.status === "answering" ? Math.max(0, game.deadline - now) : 0;
-  const percent =
-    game.mode === "endless"
-      ? (game.index % 10) * 10
-      : (game.index / game.questions.length) * 100;
-  const suggestions = useMemo(
-    () =>
-      input.trim()
-        ? question.answers
-            .filter((a) => norm(a.name).startsWith(norm(input)))
-            .slice(0, 3)
-        : [],
-    [input, question],
-  );
-  const corrected = useMemo(
-    () => (input.trim().length >= 4 ? matchAnswer(question, input) : null),
-    [input, question],
-  );
-  return (
-    <section
-      id="game-screen"
-      className="screen"
-      aria-label="Current expedition"
-    >
-      <div className="game-topline">
-        <button className="quiet-btn" onClick={onLeave}>
-          ← Return to shore
-        </button>
-        <span>{MODE_NAMES[game.mode]}</span>
-        <span>
-          QUESTION {game.index + 1} /{" "}
-          {game.mode === "endless" ? "∞" : game.questions.length}
-        </span>
-      </div>
-      <div className="game-layout">
-        <Ocean game={game} />
-        <div className="quiz-panel">
-          <div className="question-top">
-            <span>{question.category.toUpperCase()}</span>
-            <span>
-              {String(game.index + 1).padStart(2, "0")} /{" "}
-              {game.mode === "endless"
-                ? "∞"
-                : String(game.questions.length).padStart(2, "0")}
-            </span>
-          </div>
-          <div className="progress-track">
-            <div style={{ width: `${percent}%` }} />
-          </div>
-          <h2 className="question-text">{question.prompt}</h2>
-          <div className="timer-row">
-            <span>TIME REMAINING</span>
-            <strong>{(ms / 1000).toFixed(1)}s</strong>
-          </div>
-          <div className="timer-track">
-            <div
-              style={{
-                width: `${(ms / 25000) * 100}%`,
-                background: ms < 5000 ? "#e46b6b" : undefined,
-              }}
-            />
-          </div>
-          <form
-            id="answer-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (input.trim()) onAnswer(input.trim());
-            }}
-          >
-            <label htmlFor="answer">YOUR ANSWER</label>
-            <input
-              id="answer"
-              autoComplete="off"
-              maxLength="70"
-              spellCheck="false"
-              autoCapitalize="words"
-              placeholder="Type a champion, item or place…"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              disabled={game.status !== "answering"}
-              required
-            />
-            <div className="suggestions" role="status" aria-live="polite">
-              {game.status === "answering" && corrected?.corrected
-                ? "Spelling recognised: " + corrected.answer.name
-                : game.status === "answering" && suggestions.length
-                  ? "Possible matches: " +
-                    suggestions.map((x) => x.name).join(" · ")
-                  : ""}
-            </div>
-            <button
-              className="primary-button submit-button"
-              type="submit"
-              disabled={game.status !== "answering"}
-            >
-              Dive with answer <span>↘</span>
-            </button>
-          </form>
-          <div className="question-bottom">
-            <button
-              className="text-button"
-              type="button"
-              disabled={game.status !== "answering"}
-              onClick={onSkip}
-            >
-              Skip this question
-            </button>
-            <span className="hint">Rare answers descend further</span>
-          </div>
-          {game.status === "revealing" && (
-            <div className="feedback" role="status" aria-live="polite">
-              <div
-                className="feedback-icon"
-                style={{
-                  color: game.last.tier
-                    ? COLORS[game.last.tier - 1]
-                    : "#a8bec1",
-                }}
-              >
-                {game.last.tier ? ICONS[game.last.tier - 1] : "◇"}
-              </div>
-              <p className="feedback-kicker">
-                {game.last.tier
-                  ? `${game.last.rarity.toUpperCase()} DISCOVERY`
-                  : "NO DISCOVERY"}
-              </p>
-              <h3>
-                {game.last.gain
-                  ? `+${game.last.gain.toLocaleString("en-NZ")} metres`
-                  : game.last.rarity}
-              </h3>
-              <p>{game.last.detail}</p>
-              <button className="primary-button" onClick={onNext}>
-                {(game.mode === "endless" && game.lives <= 0) ||
-                (game.mode !== "endless" &&
-                  game.index + 1 === game.questions.length)
-                  ? "Finish expedition →"
-                  : "Continue descent →"}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
+export default function Game({game,onAnswer,onSkip,onNext,onLeave,onSurface}) {
+  const [input,setInput]=useState(''),[now,setNow]=useState(()=>performance.now()),[listOpen,setListOpen]=useState(false),[active,setActive]=useState(-1);
+  const inputRef=useRef(null),nextRef=useRef(null);
+  const question=game.questions[game.index],answering=game.status==='answering';
+  const options=useMemo(()=>input.trim().length>=2?suggestions(input,question.category,CATALOG,5):[],[input,question.category]);
+  const recognition=useMemo(()=>input.trim()?resolveInput(input,question.category):null,[input,question.category]);
+  const remaining=game.deadline==null?null:Math.max(0,game.deadline-now);
+  useEffect(()=>{setInput('');setActive(-1);setListOpen(false);setNow(performance.now());if(!window.matchMedia||window.matchMedia('(pointer: fine)').matches)inputRef.current?.focus({preventScroll:true});},[game.index]);
+  useEffect(()=>{if(!answering||game.deadline==null)return;const tick=()=>{const time=performance.now();setNow(time);if(time>=game.deadline)onAnswer('',true);};tick();const id=setInterval(tick,100);return()=>clearInterval(id);},[game.deadline,answering,onAnswer]);
+  useEffect(()=>{if(game.status==='revealing')nextRef.current?.focus({preventScroll:true});},[game.status]);
+  function pick(entity){setInput(entity.name);setListOpen(false);setActive(-1);inputRef.current?.focus();}
+  function keyDown(e){if(e.key==='Escape'){setListOpen(false);setActive(-1);}if(e.key==='ArrowDown'&&options.length){e.preventDefault();setListOpen(true);setActive(i=>(i+1)%options.length);}if(e.key==='ArrowUp'&&options.length){e.preventDefault();setListOpen(true);setActive(i=>i<0?options.length-1:(i-1+options.length)%options.length);}if(e.key==='Enter'&&listOpen&&active>=0&&options[active]){e.preventDefault();pick(options[active]);}}
+  function submit(e){e.preventDefault();if(!input.trim())return;setListOpen(false);onAnswer(input.trim());}
+  const finishedNext=(game.mode==='endless'&&game.lives<=0)||(game.mode!=='endless'&&game.index+1===game.questions.length);
+  const last=game.last;
+  const dotStart=game.mode==='endless'?Math.max(0,game.index-11):0;
+  return <section className="screen game-screen" id="game-screen">
+    <div className="game-toolbar"><button className="text-button" onClick={onLeave}><Icon name="back" size={16}/>Leave expedition</button><span className="mode-label"><span className="live-dot"/>{MODE_NAMES[game.mode]}</span><span className="keyboard-tip">ENTER TO SUBMIT</span></div>
+    <div className="game-layout"><aside className="expedition-panel" aria-label="Dive progress"><Ocean depth={game.depth} gain={last?.gain||0} eventKey={game.log.length}/><div className="dive-stats"><div><Icon name="spark" size={17}/><b>×{comboMultiplier(game.streak).toFixed(1)}</b><span>combo</span></div><div><Icon name="check" size={17}/><b>{game.correct}</b><span>correct</span></div><div><Icon name={game.mode==='endless'?'heart':'compass'} size={17}/><b>{game.mode==='endless'?game.lives:game.index+1}</b><span>{game.mode==='endless'?'lives':'of 7'}</span></div></div>{game.mode==='endless'&&<button className="button surface-button" onClick={onSurface}>Surface & save this run<Icon name="flag" size={16}/></button>}<p className="dive-tip"><Icon name="info" size={15}/>A correct answer grows your streak. Five in a row earns a ×1.4 depth multiplier.</p></aside>
+    <div className="question-panel"><div className="question-heading"><span className="category-badge"><Icon name={categoryIcon[question.category]} size={15}/>{question.category==='map'?'THE RIFT':question.category.toUpperCase()}</span><span data-testid="question-number">{String(game.index+1).padStart(2,'0')} <i>/ {game.mode==='endless'?'∞':'07'}</i></span></div>
+      <div className="question-dots" aria-label={`Question ${game.index+1}${game.mode==='endless'?'':' of 7'}`}>{Array.from({length:game.mode==='endless'?Math.min(game.index+1,12):7},(_,slot)=>{const i=dotStart+slot;return <i key={i} className={i<game.log.length?(game.log[i]?.correct?'completed':'missed'):i===game.index?'current':''}/>;})}</div>
+      <div className="question-content"><p className="eyebrow">TRUST YOUR RIFT KNOWLEDGE</p><h1 data-testid="question-prompt">{question.prompt}</h1><p className="question-rule">{question.rule||question.hint}</p></div>
+      {answering?<><div className={`timer-section ${remaining!==null&&remaining<=5000?'urgent':''}`}><div><span><Icon name={remaining===null?'book':'clock'} size={15}/>{remaining===null?'NO RUSH — PRACTICE MODE':'TIME REMAINING'}</span><strong aria-label={remaining===null?'No time limit':`${Math.ceil(remaining/1000)} seconds remaining`}>{remaining===null?'∞':`${Math.ceil(remaining/1000)}s`}</strong></div>{remaining!==null&&<div className="timer-track" role="progressbar" aria-label="Time remaining" aria-valuemin={0} aria-valuemax={25} aria-valuenow={Math.ceil(remaining/1000)}><i style={{width:`${Math.max(0,remaining/(game.durationMs||25000)*100)}%`}}/></div>}</div>
+      <form className="answer-form" onSubmit={submit}><label htmlFor="answer-input">YOUR ANSWER<span>One name is all it takes.</span></label><div className={`answer-field ${recognition?.status==='matched'?'recognised':''}`}><Icon name="search" size={20}/><input ref={inputRef} id="answer-input" data-testid="answer-input" type="text" value={input} onChange={e=>{setInput(e.target.value);setActive(-1);setListOpen(true);}} onKeyDown={keyDown} onFocus={()=>setListOpen(true)} onBlur={()=>setListOpen(false)} placeholder={question.category==='champions'?'Try a champion name…':question.category==='items'?'Try an item name…':'Try an objective or map feature…'} maxLength={90} autoComplete="off" spellCheck={false} autoCapitalize="off" role="combobox" aria-autocomplete="list" aria-controls="name-suggestions" aria-expanded={listOpen&&options.length>0} aria-activedescendant={listOpen&&active>=0?`suggestion-${active}`:undefined} aria-describedby="answer-help"/><kbd>↵</kbd></div>
+      {listOpen&&options.length>0&&<div className="suggestion-dropdown" id="name-suggestions" role="listbox" aria-label="Name suggestions"><div className="suggestion-label">NAME MATCHES · NOT ANSWER HINTS</div>{options.map((entity,i)=><div role="option" aria-selected={i===active} id={`suggestion-${i}`} className={`suggestion-option ${active===i?'active':''}`} key={entity.id} onPointerDown={e=>{e.preventDefault();pick(entity);}}><Avatar entity={entity} small/><span>{entity.name}</span><small>{entity.category==='map'?'The Rift':entity.category}</small></div>)}</div>}
+      <div className="answer-help" id="answer-help">{recognition?.status==='matched'?<><Icon name="check" size={14}/><span>Name recognised: <b>{recognition.entity.name}</b>. Submit to check the question.</span></>:<><Icon name="spark" size={14}/><span>Nicknames and small typos are welcome.</span></>}</div>
+      {game.notice&&<div className="answer-notice" data-testid="answer-notice" role="status"><Icon name="info" size={17}/><div>{game.notice.message}{game.notice.candidates?.length>0&&<div className="notice-candidates">{game.notice.candidates.slice(0,5).map(e=><button type="button" key={e.id} onClick={()=>pick(e)}>{e.name}</button>)}</div>}</div></div>}
+      <button className="button button-primary answer-submit" data-testid="answer-submit" type="submit" disabled={!input.trim()}>Lock it in & dive<Icon name="down"/></button></form><div className="answer-bottom"><button className="text-button" onClick={onSkip}>Skip question<Icon name="arrow" size={15}/></button><span>No spelling penalty. The clock keeps running.</span></div></>:
+      <div className={`answer-reveal ${last?.correct?'success':'miss'} tier-${last?.tier||0}`} role="status" aria-live="polite"><div className="reveal-label"><Icon name={last?.correct?'spark':'info'} size={18}/>{last?.correct?`${last.rarity} discovery`:last?.rarity||'Keep exploring'}</div><h2>{last?.correct?last.answer:last?.rarity==='Time expired'?'Time to resurface.':'Not this time.'}</h2>{last?.correct&&<div className="reveal-depth">+{last.gain.toLocaleString()}<span>metres</span></div>}<p>{last?.detail}</p>{!last?.correct&&<p className="submitted-answer">Your answer: <b>{last?.answer||'—'}</b></p>}{last?.examples?.length>0&&<div className="example-answers"><span>{last.correct?'OTHER DISCOVERIES':'ANSWERS THAT FIT'}</span><div>{last.examples.slice(0,4).map((e,i)=><span key={e.id||i}>{typeof e==='string'?e:e.name}</span>)}</div></div>}<button ref={nextRef} className="button button-primary" data-testid="next-question" onClick={onNext}>{finishedNext?'See expedition results':'Continue the descent'}<Icon name="arrow"/></button></div>}
+    </div></div>
+    <div className="play-footer"><span>Correct names are checked against the question's rule.</span><span>Common 100 m · Uncommon 200 m · Rare 350 m · Epic 550 m · Mythic 800 m</span></div>
+  </section>;
 }
-
-export default Game;
