@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {validateBank,chooseQuestions,resolveAnswer,norm,award,rarityFor,comboMultiplier,BIOMES,biomeFor,dailyKey,levelFor,BASE_DEPTH} from '../src/engine.js';
+const bank=JSON.parse(readFileSync(new URL('../src/questions.json',import.meta.url),'utf8'));
+test('bank validates with non-esports categories',()=>{assert.deepEqual(validateBank(bank),[]);assert.equal(bank.length,60);assert.deepEqual([...new Set(bank.map(x=>x.category))].sort(),['champions','items','map'])});
+test('7-question mix and unique IDs',()=>{const q=chooseQuestions(bank,'xyz');assert.equal(q.length,7);assert.equal(new Set(q.map(x=>x.id)).size,7);assert.equal(q.filter(x=>x.category==='champions').length,3);assert.equal(q.filter(x=>x.category==='items').length,2);assert.equal(q.filter(x=>x.category==='map').length,2)});
+test('daily question order deterministic',()=>{assert.deepEqual(chooseQuestions(bank,'rift-daily-2026-11-18').map(x=>x.id),chooseQuestions(bank,'rift-daily-2026-11-18').map(x=>x.id))});
+test('alias and punctuation handling',()=>{const q=bank.find(q=>q.answers.some(a=>norm(a.name)==='kaisa'));assert.ok(q);assert.ok(resolveAnswer(q,"Kai'Sa"));assert.ok(resolveAnswer(q,'kaisa'));assert.equal(resolveAnswer(q,'definitely not an answer'),null)});
+test('rarity and combo bounded',()=>{const one=award({priorTier:5},1);assert.equal(one.depth,800);assert.equal(award({priorTier:5},5).depth,1120);assert.equal(comboMultiplier(200),1.4);assert.deepEqual(BASE_DEPTH,[100,200,350,550,800]);assert.equal(rarityFor({priorTier:4}),4)});
+test('biomes thresholds and levels',()=>{assert.equal(biomeFor(0).key,'shoals');assert.equal(biomeFor(1000).key,'temple');assert.equal(biomeFor(6000).key,'celestial');assert.equal(levelFor(0),1);assert.equal(levelFor(600),3);assert.equal(dailyKey(new Date('2026-11-18T12:00:00Z')),'2026-11-18')});

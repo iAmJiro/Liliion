@@ -1,0 +1,2554 @@
+[
+  {
+    "id": "q001",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion associated with Demacia.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Lux",
+        "priorTier": 1
+      },
+      {
+        "name": "Garen",
+        "priorTier": 1
+      },
+      {
+        "name": "Vayne",
+        "priorTier": 1
+      },
+      {
+        "name": "Fiora",
+        "priorTier": 2
+      },
+      {
+        "name": "Jarvan IV",
+        "priorTier": 2
+      },
+      {
+        "name": "Poppy",
+        "priorTier": 2
+      },
+      {
+        "name": "Galio",
+        "priorTier": 3
+      },
+      {
+        "name": "Shyvana",
+        "priorTier": 3
+      },
+      {
+        "name": "Xin Zhao",
+        "priorTier": 3
+      },
+      {
+        "name": "Quinn",
+        "priorTier": 4
+      },
+      {
+        "name": "Sona",
+        "priorTier": 4
+      },
+      {
+        "name": "Kayle",
+        "priorTier": 4
+      },
+      {
+        "name": "Sylas",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q002",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion associated with Noxus.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Darius",
+        "priorTier": 1
+      },
+      {
+        "name": "Draven",
+        "priorTier": 1
+      },
+      {
+        "name": "Katarina",
+        "priorTier": 1
+      },
+      {
+        "name": "Riven",
+        "priorTier": 2
+      },
+      {
+        "name": "Swain",
+        "priorTier": 2
+      },
+      {
+        "name": "Samira",
+        "priorTier": 2
+      },
+      {
+        "name": "Talon",
+        "priorTier": 3
+      },
+      {
+        "name": "LeBlanc",
+        "priorTier": 3
+      },
+      {
+        "name": "Sion",
+        "priorTier": 3
+      },
+      {
+        "name": "Kled",
+        "priorTier": 4
+      },
+      {
+        "name": "Vladimir",
+        "priorTier": 4
+      },
+      {
+        "name": "Cassiopeia",
+        "priorTier": 4
+      },
+      {
+        "name": "Briar",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q003",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion associated with Ionia.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Ahri",
+        "priorTier": 1
+      },
+      {
+        "name": "Yasuo",
+        "priorTier": 1
+      },
+      {
+        "name": "Akali",
+        "priorTier": 1
+      },
+      {
+        "name": "Irelia",
+        "priorTier": 2
+      },
+      {
+        "name": "Yone",
+        "priorTier": 2
+      },
+      {
+        "name": "Zed",
+        "priorTier": 2
+      },
+      {
+        "name": "Master Yi",
+        "priorTier": 2
+      },
+      {
+        "name": "Shen",
+        "priorTier": 3
+      },
+      {
+        "name": "Karma",
+        "priorTier": 3
+      },
+      {
+        "name": "Jhin",
+        "priorTier": 3
+      },
+      {
+        "name": "Xayah",
+        "priorTier": 3
+      },
+      {
+        "name": "Kennen",
+        "priorTier": 4
+      },
+      {
+        "name": "Rakan",
+        "priorTier": 4
+      },
+      {
+        "name": "Sett",
+        "priorTier": 4
+      },
+      {
+        "name": "Kayn",
+        "priorTier": 4
+      },
+      {
+        "name": "Lillia",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q004",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion associated with Shurima.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Nasus",
+        "priorTier": 1
+      },
+      {
+        "name": "Renekton",
+        "priorTier": 1
+      },
+      {
+        "name": "Azir",
+        "priorTier": 1
+      },
+      {
+        "name": "Sivir",
+        "priorTier": 2
+      },
+      {
+        "name": "Xerath",
+        "priorTier": 2
+      },
+      {
+        "name": "Taliyah",
+        "priorTier": 2
+      },
+      {
+        "name": "Amumu",
+        "priorTier": 3
+      },
+      {
+        "name": "Rammus",
+        "priorTier": 3
+      },
+      {
+        "name": "Akshan",
+        "priorTier": 3
+      },
+      {
+        "name": "K’Sante",
+        "priorTier": 4
+      },
+      {
+        "name": "Zilean",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q005",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion associated with the Freljord.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Ashe",
+        "priorTier": 1
+      },
+      {
+        "name": "Braum",
+        "priorTier": 1
+      },
+      {
+        "name": "Sejuani",
+        "priorTier": 2
+      },
+      {
+        "name": "Tryndamere",
+        "priorTier": 2
+      },
+      {
+        "name": "Nunu & Willump",
+        "priorTier": 2
+      },
+      {
+        "name": "Lissandra",
+        "priorTier": 3
+      },
+      {
+        "name": "Volibear",
+        "priorTier": 3
+      },
+      {
+        "name": "Ornn",
+        "priorTier": 3
+      },
+      {
+        "name": "Anivia",
+        "priorTier": 4
+      },
+      {
+        "name": "Olaf",
+        "priorTier": 4
+      },
+      {
+        "name": "Udyr",
+        "priorTier": 4
+      },
+      {
+        "name": "Gragas",
+        "priorTier": 5
+      },
+      {
+        "name": "Trundle",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q006",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion tied to the Shadow Isles.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Thresh",
+        "priorTier": 1
+      },
+      {
+        "name": "Viego",
+        "priorTier": 1
+      },
+      {
+        "name": "Hecarim",
+        "priorTier": 2
+      },
+      {
+        "name": "Gwen",
+        "priorTier": 2
+      },
+      {
+        "name": "Kalista",
+        "priorTier": 3
+      },
+      {
+        "name": "Karthus",
+        "priorTier": 3
+      },
+      {
+        "name": "Maokai",
+        "priorTier": 4
+      },
+      {
+        "name": "Yorick",
+        "priorTier": 4
+      },
+      {
+        "name": "Elise",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q007",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion associated with Bilgewater.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Miss Fortune",
+        "priorTier": 1
+      },
+      {
+        "name": "Gangplank",
+        "priorTier": 1
+      },
+      {
+        "name": "Pyke",
+        "priorTier": 2
+      },
+      {
+        "name": "Graves",
+        "priorTier": 2
+      },
+      {
+        "name": "Twisted Fate",
+        "priorTier": 2
+      },
+      {
+        "name": "Nautilus",
+        "priorTier": 3
+      },
+      {
+        "name": "Illaoi",
+        "priorTier": 3
+      },
+      {
+        "name": "Fizz",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q008",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion associated with Piltover.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Caitlyn",
+        "priorTier": 1
+      },
+      {
+        "name": "Vi",
+        "priorTier": 1
+      },
+      {
+        "name": "Jayce",
+        "priorTier": 2
+      },
+      {
+        "name": "Ezreal",
+        "priorTier": 2
+      },
+      {
+        "name": "Heimerdinger",
+        "priorTier": 3
+      },
+      {
+        "name": "Camille",
+        "priorTier": 3
+      },
+      {
+        "name": "Orianna",
+        "priorTier": 4
+      },
+      {
+        "name": "Seraphine",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q009",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion associated with Zaun.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Jinx",
+        "priorTier": 1
+      },
+      {
+        "name": "Ekko",
+        "priorTier": 1
+      },
+      {
+        "name": "Warwick",
+        "priorTier": 2
+      },
+      {
+        "name": "Viktor",
+        "priorTier": 2
+      },
+      {
+        "name": "Singed",
+        "priorTier": 3
+      },
+      {
+        "name": "Dr. Mundo",
+        "priorTier": 3
+      },
+      {
+        "name": "Zeri",
+        "priorTier": 3
+      },
+      {
+        "name": "Zac",
+        "priorTier": 4
+      },
+      {
+        "name": "Twitch",
+        "priorTier": 4
+      },
+      {
+        "name": "Blitzcrank",
+        "priorTier": 4
+      },
+      {
+        "name": "Renata Glasc",
+        "priorTier": 5
+      },
+      {
+        "name": "Urgot",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q010",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion with strong ties to Mount Targon.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Leona",
+        "priorTier": 1
+      },
+      {
+        "name": "Diana",
+        "priorTier": 1
+      },
+      {
+        "name": "Pantheon",
+        "priorTier": 2
+      },
+      {
+        "name": "Zoe",
+        "priorTier": 2
+      },
+      {
+        "name": "Soraka",
+        "priorTier": 3
+      },
+      {
+        "name": "Taric",
+        "priorTier": 3
+      },
+      {
+        "name": "Aphelios",
+        "priorTier": 4
+      },
+      {
+        "name": "Aurelion Sol",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q011",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a Void champion or a champion changed by the Void.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Kai’Sa",
+        "priorTier": 1
+      },
+      {
+        "name": "Kha’Zix",
+        "priorTier": 1
+      },
+      {
+        "name": "Cho’Gath",
+        "priorTier": 2
+      },
+      {
+        "name": "Malzahar",
+        "priorTier": 2
+      },
+      {
+        "name": "Rek’Sai",
+        "priorTier": 3
+      },
+      {
+        "name": "Kog’Maw",
+        "priorTier": 3
+      },
+      {
+        "name": "Vel’Koz",
+        "priorTier": 4
+      },
+      {
+        "name": "Bel’Veth",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q012",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a Yordle champion.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Teemo",
+        "priorTier": 1
+      },
+      {
+        "name": "Lulu",
+        "priorTier": 1
+      },
+      {
+        "name": "Tristana",
+        "priorTier": 2
+      },
+      {
+        "name": "Veigar",
+        "priorTier": 2
+      },
+      {
+        "name": "Ziggs",
+        "priorTier": 2
+      },
+      {
+        "name": "Poppy",
+        "priorTier": 3
+      },
+      {
+        "name": "Kennen",
+        "priorTier": 3
+      },
+      {
+        "name": "Heimerdinger",
+        "priorTier": 3
+      },
+      {
+        "name": "Rumble",
+        "priorTier": 4
+      },
+      {
+        "name": "Corki",
+        "priorTier": 4
+      },
+      {
+        "name": "Gnar",
+        "priorTier": 4
+      },
+      {
+        "name": "Kled",
+        "priorTier": 5
+      },
+      {
+        "name": "Vex",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q013",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion associated with Ixtal.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Qiyana",
+        "priorTier": 1
+      },
+      {
+        "name": "Neeko",
+        "priorTier": 1
+      },
+      {
+        "name": "Nidalee",
+        "priorTier": 2
+      },
+      {
+        "name": "Rengar",
+        "priorTier": 2
+      },
+      {
+        "name": "Zyra",
+        "priorTier": 3
+      },
+      {
+        "name": "Malphite",
+        "priorTier": 3
+      },
+      {
+        "name": "Milio",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q014",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion who can switch between distinct combat forms.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Jayce",
+        "priorTier": 1
+      },
+      {
+        "name": "Gnar",
+        "priorTier": 1
+      },
+      {
+        "name": "Nidalee",
+        "priorTier": 2
+      },
+      {
+        "name": "Elise",
+        "priorTier": 2
+      },
+      {
+        "name": "Shyvana",
+        "priorTier": 3
+      },
+      {
+        "name": "Kayn",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q015",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion with invisibility or camouflage in their kit.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Akali",
+        "priorTier": 1
+      },
+      {
+        "name": "Teemo",
+        "priorTier": 1
+      },
+      {
+        "name": "Evelynn",
+        "priorTier": 2
+      },
+      {
+        "name": "Twitch",
+        "priorTier": 2
+      },
+      {
+        "name": "Shaco",
+        "priorTier": 2
+      },
+      {
+        "name": "Rengar",
+        "priorTier": 3
+      },
+      {
+        "name": "Kha’Zix",
+        "priorTier": 3
+      },
+      {
+        "name": "Talon",
+        "priorTier": 4
+      },
+      {
+        "name": "Pyke",
+        "priorTier": 4
+      },
+      {
+        "name": "Neeko",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q016",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion with a hook or long-range pull ability.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Blitzcrank",
+        "priorTier": 1
+      },
+      {
+        "name": "Thresh",
+        "priorTier": 1
+      },
+      {
+        "name": "Nautilus",
+        "priorTier": 2
+      },
+      {
+        "name": "Pyke",
+        "priorTier": 2
+      },
+      {
+        "name": "Swain",
+        "priorTier": 3
+      },
+      {
+        "name": "Renata Glasc",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q017",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion who can shield an ally.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Lulu",
+        "priorTier": 1
+      },
+      {
+        "name": "Janna",
+        "priorTier": 1
+      },
+      {
+        "name": "Karma",
+        "priorTier": 2
+      },
+      {
+        "name": "Lux",
+        "priorTier": 2
+      },
+      {
+        "name": "Morgana",
+        "priorTier": 3
+      },
+      {
+        "name": "Rakan",
+        "priorTier": 3
+      },
+      {
+        "name": "Milio",
+        "priorTier": 4
+      },
+      {
+        "name": "Seraphine",
+        "priorTier": 4
+      },
+      {
+        "name": "Ivern",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q018",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion who can directly heal allies.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Soraka",
+        "priorTier": 1
+      },
+      {
+        "name": "Nami",
+        "priorTier": 1
+      },
+      {
+        "name": "Sona",
+        "priorTier": 2
+      },
+      {
+        "name": "Yuumi",
+        "priorTier": 2
+      },
+      {
+        "name": "Taric",
+        "priorTier": 3
+      },
+      {
+        "name": "Seraphine",
+        "priorTier": 3
+      },
+      {
+        "name": "Milio",
+        "priorTier": 4
+      },
+      {
+        "name": "Bard",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q019",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion with a revive or resurrection mechanic.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Zilean",
+        "priorTier": 1
+      },
+      {
+        "name": "Renata Glasc",
+        "priorTier": 2
+      },
+      {
+        "name": "Akshan",
+        "priorTier": 3
+      },
+      {
+        "name": "Anivia",
+        "priorTier": 4
+      },
+      {
+        "name": "Zac",
+        "priorTier": 4
+      },
+      {
+        "name": "Sion",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q020",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion who summons persistent pets, soldiers or creatures.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Annie",
+        "priorTier": 1
+      },
+      {
+        "name": "Heimerdinger",
+        "priorTier": 1
+      },
+      {
+        "name": "Ivern",
+        "priorTier": 2
+      },
+      {
+        "name": "Malzahar",
+        "priorTier": 2
+      },
+      {
+        "name": "Yorick",
+        "priorTier": 3
+      },
+      {
+        "name": "Elise",
+        "priorTier": 3
+      },
+      {
+        "name": "Zyra",
+        "priorTier": 4
+      },
+      {
+        "name": "Azir",
+        "priorTier": 4
+      },
+      {
+        "name": "Naafiri",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q021",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion with a long-distance teleport or map-travel ultimate.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Twisted Fate",
+        "priorTier": 1
+      },
+      {
+        "name": "Shen",
+        "priorTier": 1
+      },
+      {
+        "name": "Pantheon",
+        "priorTier": 2
+      },
+      {
+        "name": "Galio",
+        "priorTier": 2
+      },
+      {
+        "name": "Taliyah",
+        "priorTier": 3
+      },
+      {
+        "name": "Ryze",
+        "priorTier": 3
+      },
+      {
+        "name": "Nocturne",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q022",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion with an execute-like finishing ability.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Garen",
+        "priorTier": 1
+      },
+      {
+        "name": "Darius",
+        "priorTier": 1
+      },
+      {
+        "name": "Pyke",
+        "priorTier": 2
+      },
+      {
+        "name": "Urgot",
+        "priorTier": 2
+      },
+      {
+        "name": "Cho’Gath",
+        "priorTier": 3
+      },
+      {
+        "name": "Evelynn",
+        "priorTier": 4
+      },
+      {
+        "name": "Smolder",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q023",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion famous for dashes or high mobility.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Yasuo",
+        "priorTier": 1
+      },
+      {
+        "name": "Akali",
+        "priorTier": 1
+      },
+      {
+        "name": "Irelia",
+        "priorTier": 2
+      },
+      {
+        "name": "Lee Sin",
+        "priorTier": 2
+      },
+      {
+        "name": "Riven",
+        "priorTier": 3
+      },
+      {
+        "name": "Katarina",
+        "priorTier": 3
+      },
+      {
+        "name": "Kalista",
+        "priorTier": 4
+      },
+      {
+        "name": "Qiyana",
+        "priorTier": 4
+      },
+      {
+        "name": "LeBlanc",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q024",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name an assassin often played in mid lane.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Zed",
+        "priorTier": 1
+      },
+      {
+        "name": "Akali",
+        "priorTier": 1
+      },
+      {
+        "name": "Katarina",
+        "priorTier": 2
+      },
+      {
+        "name": "Talon",
+        "priorTier": 2
+      },
+      {
+        "name": "Fizz",
+        "priorTier": 3
+      },
+      {
+        "name": "LeBlanc",
+        "priorTier": 3
+      },
+      {
+        "name": "Qiyana",
+        "priorTier": 4
+      },
+      {
+        "name": "Ekko",
+        "priorTier": 4
+      },
+      {
+        "name": "Naafiri",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q025",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion who empowers attacks with stacked or charged effects.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Nasus",
+        "priorTier": 1
+      },
+      {
+        "name": "Jax",
+        "priorTier": 1
+      },
+      {
+        "name": "Vayne",
+        "priorTier": 2
+      },
+      {
+        "name": "Kai’Sa",
+        "priorTier": 2
+      },
+      {
+        "name": "Vi",
+        "priorTier": 3
+      },
+      {
+        "name": "Sett",
+        "priorTier": 3
+      },
+      {
+        "name": "Udyr",
+        "priorTier": 4
+      },
+      {
+        "name": "Renekton",
+        "priorTier": 4
+      },
+      {
+        "name": "Bel’Veth",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q026",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an item that provides armor.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Thornmail",
+        "priorTier": 1
+      },
+      {
+        "name": "Zhonya’s Hourglass",
+        "priorTier": 1
+      },
+      {
+        "name": "Randuin’s Omen",
+        "priorTier": 2
+      },
+      {
+        "name": "Guardian Angel",
+        "priorTier": 2
+      },
+      {
+        "name": "Frozen Heart",
+        "priorTier": 3
+      },
+      {
+        "name": "Iceborn Gauntlet",
+        "priorTier": 3
+      },
+      {
+        "name": "Dead Man’s Plate",
+        "priorTier": 4
+      },
+      {
+        "name": "Sunfire Aegis",
+        "priorTier": 4
+      },
+      {
+        "name": "Unending Despair",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q027",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an item that provides magic resistance.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Spirit Visage",
+        "priorTier": 1
+      },
+      {
+        "name": "Banshee’s Veil",
+        "priorTier": 1
+      },
+      {
+        "name": "Force of Nature",
+        "priorTier": 2
+      },
+      {
+        "name": "Maw of Malmortius",
+        "priorTier": 2
+      },
+      {
+        "name": "Mercurial Scimitar",
+        "priorTier": 3
+      },
+      {
+        "name": "Abyssal Mask",
+        "priorTier": 3
+      },
+      {
+        "name": "Kaenic Rookern",
+        "priorTier": 4
+      },
+      {
+        "name": "Mercury’s Treads",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q028",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an item that provides attack damage.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Infinity Edge",
+        "priorTier": 1
+      },
+      {
+        "name": "The Collector",
+        "priorTier": 1
+      },
+      {
+        "name": "Bloodthirster",
+        "priorTier": 2
+      },
+      {
+        "name": "Blade of the Ruined King",
+        "priorTier": 2
+      },
+      {
+        "name": "Ravenous Hydra",
+        "priorTier": 3
+      },
+      {
+        "name": "Death’s Dance",
+        "priorTier": 3
+      },
+      {
+        "name": "Spear of Shojin",
+        "priorTier": 4
+      },
+      {
+        "name": "Serylda’s Grudge",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q029",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an item that provides ability power.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Rabadon’s Deathcap",
+        "priorTier": 1
+      },
+      {
+        "name": "Lich Bane",
+        "priorTier": 1
+      },
+      {
+        "name": "Zhonya’s Hourglass",
+        "priorTier": 2
+      },
+      {
+        "name": "Shadowflame",
+        "priorTier": 2
+      },
+      {
+        "name": "Liandry’s Torment",
+        "priorTier": 3
+      },
+      {
+        "name": "Rylai’s Crystal Scepter",
+        "priorTier": 3
+      },
+      {
+        "name": "Nashor’s Tooth",
+        "priorTier": 4
+      },
+      {
+        "name": "Cryptbloom",
+        "priorTier": 4
+      },
+      {
+        "name": "Mejai’s Soulstealer",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q030",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an item that can grant lifesteal.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Bloodthirster",
+        "priorTier": 1
+      },
+      {
+        "name": "Blade of the Ruined King",
+        "priorTier": 1
+      },
+      {
+        "name": "Ravenous Hydra",
+        "priorTier": 2
+      },
+      {
+        "name": "Immortal Shieldbow",
+        "priorTier": 3
+      },
+      {
+        "name": "Mercurial Scimitar",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q031",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an item associated with critical strikes.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Infinity Edge",
+        "priorTier": 1
+      },
+      {
+        "name": "The Collector",
+        "priorTier": 1
+      },
+      {
+        "name": "Phantom Dancer",
+        "priorTier": 2
+      },
+      {
+        "name": "Navori Flickerblade",
+        "priorTier": 2
+      },
+      {
+        "name": "Rapid Firecannon",
+        "priorTier": 3
+      },
+      {
+        "name": "Mortal Reminder",
+        "priorTier": 3
+      },
+      {
+        "name": "Runaan’s Hurricane",
+        "priorTier": 4
+      },
+      {
+        "name": "Yun Tal Wildarrows",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q032",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an item that helps champions move faster.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Boots of Swiftness",
+        "priorTier": 1
+      },
+      {
+        "name": "Phantom Dancer",
+        "priorTier": 1
+      },
+      {
+        "name": "Dead Man’s Plate",
+        "priorTier": 2
+      },
+      {
+        "name": "Force of Nature",
+        "priorTier": 2
+      },
+      {
+        "name": "Lich Bane",
+        "priorTier": 3
+      },
+      {
+        "name": "Cosmic Drive",
+        "priorTier": 4
+      },
+      {
+        "name": "Shurelya’s Battlesong",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q033",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an item known for on-hit attack effects.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Blade of the Ruined King",
+        "priorTier": 1
+      },
+      {
+        "name": "Guinsoo’s Rageblade",
+        "priorTier": 1
+      },
+      {
+        "name": "Nashor’s Tooth",
+        "priorTier": 2
+      },
+      {
+        "name": "Wit’s End",
+        "priorTier": 2
+      },
+      {
+        "name": "Kraken Slayer",
+        "priorTier": 3
+      },
+      {
+        "name": "Terminus",
+        "priorTier": 3
+      },
+      {
+        "name": "Runaan’s Hurricane",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q034",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an item used by enchanters to support allies.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Moonstone Renewer",
+        "priorTier": 1
+      },
+      {
+        "name": "Redemption",
+        "priorTier": 1
+      },
+      {
+        "name": "Ardent Censer",
+        "priorTier": 2
+      },
+      {
+        "name": "Staff of Flowing Water",
+        "priorTier": 2
+      },
+      {
+        "name": "Mikael’s Blessing",
+        "priorTier": 3
+      },
+      {
+        "name": "Dawncore",
+        "priorTier": 4
+      },
+      {
+        "name": "Shurelya’s Battlesong",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q035",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an upgraded pair of boots from Summoner’s Rift.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Berserker’s Greaves",
+        "priorTier": 1
+      },
+      {
+        "name": "Mercury’s Treads",
+        "priorTier": 1
+      },
+      {
+        "name": "Plated Steelcaps",
+        "priorTier": 2
+      },
+      {
+        "name": "Ionian Boots of Lucidity",
+        "priorTier": 2
+      },
+      {
+        "name": "Sorcerer’s Shoes",
+        "priorTier": 3
+      },
+      {
+        "name": "Boots of Swiftness",
+        "priorTier": 3
+      }
+    ]
+  },
+  {
+    "id": "q036",
+    "category": "map",
+    "tag": "MAP & OBJECTIVES",
+    "prompt": "Name a jungle camp or monster on Summoner’s Rift.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Blue Sentinel",
+        "priorTier": 1
+      },
+      {
+        "name": "Red Brambleback",
+        "priorTier": 1
+      },
+      {
+        "name": "Gromp",
+        "priorTier": 2
+      },
+      {
+        "name": "Krugs",
+        "priorTier": 2
+      },
+      {
+        "name": "Raptors",
+        "priorTier": 2
+      },
+      {
+        "name": "Wolves",
+        "priorTier": 3
+      },
+      {
+        "name": "Void Grubs",
+        "priorTier": 3
+      },
+      {
+        "name": "Rift Scuttler",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q037",
+    "category": "map",
+    "tag": "MAP & OBJECTIVES",
+    "prompt": "Name an epic monster on Summoner’s Rift.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Baron Nashor",
+        "priorTier": 1
+      },
+      {
+        "name": "Dragon",
+        "priorTier": 1
+      },
+      {
+        "name": "Rift Herald",
+        "priorTier": 2
+      },
+      {
+        "name": "Elder Dragon",
+        "priorTier": 3
+      },
+      {
+        "name": "Void Grub",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q038",
+    "category": "map",
+    "tag": "MAP & OBJECTIVES",
+    "prompt": "Name an elemental dragon type.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Infernal",
+        "priorTier": 1
+      },
+      {
+        "name": "Ocean",
+        "priorTier": 1
+      },
+      {
+        "name": "Mountain",
+        "priorTier": 2
+      },
+      {
+        "name": "Cloud",
+        "priorTier": 2
+      },
+      {
+        "name": "Hextech",
+        "priorTier": 3
+      },
+      {
+        "name": "Chemtech",
+        "priorTier": 3
+      }
+    ]
+  },
+  {
+    "id": "q039",
+    "category": "map",
+    "tag": "MAP & OBJECTIVES",
+    "prompt": "Name a Summoner Spell.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Flash",
+        "priorTier": 1
+      },
+      {
+        "name": "Ignite",
+        "priorTier": 1
+      },
+      {
+        "name": "Teleport",
+        "priorTier": 1
+      },
+      {
+        "name": "Smite",
+        "priorTier": 2
+      },
+      {
+        "name": "Heal",
+        "priorTier": 2
+      },
+      {
+        "name": "Exhaust",
+        "priorTier": 2
+      },
+      {
+        "name": "Ghost",
+        "priorTier": 3
+      },
+      {
+        "name": "Barrier",
+        "priorTier": 3
+      },
+      {
+        "name": "Cleanse",
+        "priorTier": 3
+      },
+      {
+        "name": "Clarity",
+        "priorTier": 4
+      },
+      {
+        "name": "Mark",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q040",
+    "category": "champions",
+    "tag": "MODES",
+    "prompt": "Name a League of Legends game mode, permanent or rotating.",
+    "note": "",
+    "answers": [
+      {
+        "name": "ARAM",
+        "priorTier": 1
+      },
+      {
+        "name": "Ranked Solo/Duo",
+        "priorTier": 1
+      },
+      {
+        "name": "Ranked Flex",
+        "priorTier": 2
+      },
+      {
+        "name": "Normal Draft",
+        "priorTier": 2
+      },
+      {
+        "name": "Arena",
+        "priorTier": 3
+      },
+      {
+        "name": "URF",
+        "priorTier": 3
+      },
+      {
+        "name": "One for All",
+        "priorTier": 4
+      },
+      {
+        "name": "Nexus Blitz",
+        "priorTier": 4
+      },
+      {
+        "name": "Swarm",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q041",
+    "category": "map",
+    "tag": "MAP & OBJECTIVES",
+    "prompt": "Name an important neutral objective on Summoner’s Rift.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Baron Nashor",
+        "priorTier": 1
+      },
+      {
+        "name": "Dragon",
+        "priorTier": 1
+      },
+      {
+        "name": "Rift Herald",
+        "priorTier": 2
+      },
+      {
+        "name": "Elder Dragon",
+        "priorTier": 2
+      },
+      {
+        "name": "Void Grubs",
+        "priorTier": 3
+      },
+      {
+        "name": "Dragon Soul",
+        "priorTier": 3
+      }
+    ]
+  },
+  {
+    "id": "q042",
+    "category": "champions",
+    "tag": "GAME KNOWLEDGE",
+    "prompt": "Name a champion who permanently gains power from stacking a mechanic.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Nasus",
+        "priorTier": 1
+      },
+      {
+        "name": "Veigar",
+        "priorTier": 1
+      },
+      {
+        "name": "Senna",
+        "priorTier": 2
+      },
+      {
+        "name": "Smolder",
+        "priorTier": 2
+      },
+      {
+        "name": "Cho’Gath",
+        "priorTier": 3
+      },
+      {
+        "name": "Sion",
+        "priorTier": 3
+      },
+      {
+        "name": "Thresh",
+        "priorTier": 4
+      },
+      {
+        "name": "Kindred",
+        "priorTier": 4
+      },
+      {
+        "name": "Bard",
+        "priorTier": 5
+      },
+      {
+        "name": "Bel’Veth",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q043",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion commonly classified as a marksman.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Jinx",
+        "priorTier": 1
+      },
+      {
+        "name": "Ashe",
+        "priorTier": 1
+      },
+      {
+        "name": "Caitlyn",
+        "priorTier": 1
+      },
+      {
+        "name": "Kai’Sa",
+        "priorTier": 2
+      },
+      {
+        "name": "Ezreal",
+        "priorTier": 2
+      },
+      {
+        "name": "Vayne",
+        "priorTier": 2
+      },
+      {
+        "name": "Lucian",
+        "priorTier": 3
+      },
+      {
+        "name": "Miss Fortune",
+        "priorTier": 3
+      },
+      {
+        "name": "Draven",
+        "priorTier": 3
+      },
+      {
+        "name": "Xayah",
+        "priorTier": 4
+      },
+      {
+        "name": "Aphelios",
+        "priorTier": 4
+      },
+      {
+        "name": "Kalista",
+        "priorTier": 4
+      },
+      {
+        "name": "Nilah",
+        "priorTier": 5
+      },
+      {
+        "name": "Samira",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q044",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion who can create or place terrain.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Anivia",
+        "priorTier": 1
+      },
+      {
+        "name": "Jarvan IV",
+        "priorTier": 1
+      },
+      {
+        "name": "Taliyah",
+        "priorTier": 2
+      },
+      {
+        "name": "Trundle",
+        "priorTier": 2
+      },
+      {
+        "name": "Azir",
+        "priorTier": 3
+      },
+      {
+        "name": "Yorick",
+        "priorTier": 3
+      },
+      {
+        "name": "Ornn",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q045",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion with a major transform-like ultimate.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Shyvana",
+        "priorTier": 1
+      },
+      {
+        "name": "Gnar",
+        "priorTier": 1
+      },
+      {
+        "name": "Swain",
+        "priorTier": 2
+      },
+      {
+        "name": "Nasus",
+        "priorTier": 2
+      },
+      {
+        "name": "Renekton",
+        "priorTier": 3
+      },
+      {
+        "name": "Aatrox",
+        "priorTier": 3
+      },
+      {
+        "name": "Riven",
+        "priorTier": 4
+      },
+      {
+        "name": "K’Sante",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q046",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion associated with ice or winter magic.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Ashe",
+        "priorTier": 1
+      },
+      {
+        "name": "Lissandra",
+        "priorTier": 1
+      },
+      {
+        "name": "Anivia",
+        "priorTier": 2
+      },
+      {
+        "name": "Sejuani",
+        "priorTier": 2
+      },
+      {
+        "name": "Nunu & Willump",
+        "priorTier": 3
+      },
+      {
+        "name": "Trundle",
+        "priorTier": 3
+      },
+      {
+        "name": "Braum",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q047",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion whose main weapon is a bow or crossbow.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Ashe",
+        "priorTier": 1
+      },
+      {
+        "name": "Varus",
+        "priorTier": 1
+      },
+      {
+        "name": "Vayne",
+        "priorTier": 2
+      },
+      {
+        "name": "Quinn",
+        "priorTier": 2
+      },
+      {
+        "name": "Kindred",
+        "priorTier": 3
+      },
+      {
+        "name": "Akshan",
+        "priorTier": 3
+      }
+    ]
+  },
+  {
+    "id": "q048",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion with a named companion or mount.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Nunu & Willump",
+        "priorTier": 1
+      },
+      {
+        "name": "Sejuani",
+        "priorTier": 2
+      },
+      {
+        "name": "Quinn",
+        "priorTier": 2
+      },
+      {
+        "name": "Kled",
+        "priorTier": 3
+      },
+      {
+        "name": "Ivern",
+        "priorTier": 4
+      },
+      {
+        "name": "Annie",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q049",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion who creates a clone or deceptive copy.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Shaco",
+        "priorTier": 1
+      },
+      {
+        "name": "LeBlanc",
+        "priorTier": 1
+      },
+      {
+        "name": "Wukong",
+        "priorTier": 2
+      },
+      {
+        "name": "Neeko",
+        "priorTier": 2
+      },
+      {
+        "name": "Fiddlesticks",
+        "priorTier": 3
+      },
+      {
+        "name": "Ekko",
+        "priorTier": 3
+      }
+    ]
+  },
+  {
+    "id": "q050",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion whose ultimate has global or near-global reach.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Ashe",
+        "priorTier": 1
+      },
+      {
+        "name": "Ezreal",
+        "priorTier": 1
+      },
+      {
+        "name": "Jinx",
+        "priorTier": 2
+      },
+      {
+        "name": "Gangplank",
+        "priorTier": 2
+      },
+      {
+        "name": "Senna",
+        "priorTier": 3
+      },
+      {
+        "name": "Soraka",
+        "priorTier": 3
+      },
+      {
+        "name": "Karthus",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q051",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion who has a sibling that is also a playable champion.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Yasuo",
+        "priorTier": 1
+      },
+      {
+        "name": "Yone",
+        "priorTier": 1
+      },
+      {
+        "name": "Lux",
+        "priorTier": 1
+      },
+      {
+        "name": "Garen",
+        "priorTier": 1
+      },
+      {
+        "name": "Vi",
+        "priorTier": 2
+      },
+      {
+        "name": "Jinx",
+        "priorTier": 2
+      },
+      {
+        "name": "Darius",
+        "priorTier": 2
+      },
+      {
+        "name": "Draven",
+        "priorTier": 2
+      },
+      {
+        "name": "Nasus",
+        "priorTier": 3
+      },
+      {
+        "name": "Renekton",
+        "priorTier": 3
+      },
+      {
+        "name": "Katarina",
+        "priorTier": 3
+      },
+      {
+        "name": "Cassiopeia",
+        "priorTier": 3
+      },
+      {
+        "name": "Kayle",
+        "priorTier": 4
+      },
+      {
+        "name": "Morgana",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q052",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion tied to the celestial aspects of Targon.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Leona",
+        "priorTier": 1
+      },
+      {
+        "name": "Diana",
+        "priorTier": 1
+      },
+      {
+        "name": "Pantheon",
+        "priorTier": 2
+      },
+      {
+        "name": "Zoe",
+        "priorTier": 2
+      },
+      {
+        "name": "Taric",
+        "priorTier": 3
+      },
+      {
+        "name": "Aphelios",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q053",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion of Vastayan heritage.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Ahri",
+        "priorTier": 1
+      },
+      {
+        "name": "Xayah",
+        "priorTier": 1
+      },
+      {
+        "name": "Rakan",
+        "priorTier": 1
+      },
+      {
+        "name": "Wukong",
+        "priorTier": 2
+      },
+      {
+        "name": "Nami",
+        "priorTier": 2
+      },
+      {
+        "name": "Neeko",
+        "priorTier": 3
+      },
+      {
+        "name": "Rengar",
+        "priorTier": 3
+      },
+      {
+        "name": "Sett",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q054",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a Yordle who uses inventions, machinery or gadgets.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Heimerdinger",
+        "priorTier": 1
+      },
+      {
+        "name": "Teemo",
+        "priorTier": 1
+      },
+      {
+        "name": "Rumble",
+        "priorTier": 2
+      },
+      {
+        "name": "Corki",
+        "priorTier": 2
+      },
+      {
+        "name": "Ziggs",
+        "priorTier": 3
+      },
+      {
+        "name": "Tristana",
+        "priorTier": 3
+      }
+    ]
+  },
+  {
+    "id": "q055",
+    "category": "champions",
+    "tag": "RUNETERRA",
+    "prompt": "Name a champion whose story involves the Darkin.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Aatrox",
+        "priorTier": 1
+      },
+      {
+        "name": "Varus",
+        "priorTier": 1
+      },
+      {
+        "name": "Kayn",
+        "priorTier": 2
+      },
+      {
+        "name": "Naafiri",
+        "priorTier": 3
+      }
+    ]
+  },
+  {
+    "id": "q056",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion strongly associated with an element or natural force.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Brand",
+        "priorTier": 1
+      },
+      {
+        "name": "Anivia",
+        "priorTier": 1
+      },
+      {
+        "name": "Janna",
+        "priorTier": 2
+      },
+      {
+        "name": "Nami",
+        "priorTier": 2
+      },
+      {
+        "name": "Taliyah",
+        "priorTier": 3
+      },
+      {
+        "name": "Ornn",
+        "priorTier": 3
+      },
+      {
+        "name": "Milio",
+        "priorTier": 4
+      },
+      {
+        "name": "Zyra",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q057",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an item whose name includes a person’s name.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Rabadon’s Deathcap",
+        "priorTier": 1
+      },
+      {
+        "name": "Zhonya’s Hourglass",
+        "priorTier": 1
+      },
+      {
+        "name": "Liandry’s Torment",
+        "priorTier": 2
+      },
+      {
+        "name": "Randuin’s Omen",
+        "priorTier": 2
+      },
+      {
+        "name": "Guinsoo’s Rageblade",
+        "priorTier": 3
+      },
+      {
+        "name": "Rylai’s Crystal Scepter",
+        "priorTier": 3
+      },
+      {
+        "name": "Warmog’s Armor",
+        "priorTier": 4
+      },
+      {
+        "name": "Sterak’s Gage",
+        "priorTier": 4
+      },
+      {
+        "name": "Mejai’s Soulstealer",
+        "priorTier": 5
+      }
+    ]
+  },
+  {
+    "id": "q058",
+    "category": "items",
+    "tag": "ITEMS",
+    "prompt": "Name an item with a shield or damage-blocking active or passive.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Sterak’s Gage",
+        "priorTier": 1
+      },
+      {
+        "name": "Immortal Shieldbow",
+        "priorTier": 1
+      },
+      {
+        "name": "Maw of Malmortius",
+        "priorTier": 2
+      },
+      {
+        "name": "Banshee’s Veil",
+        "priorTier": 2
+      },
+      {
+        "name": "Edge of Night",
+        "priorTier": 3
+      },
+      {
+        "name": "Kaenic Rookern",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q059",
+    "category": "map",
+    "tag": "MAP & OBJECTIVES",
+    "prompt": "Name a feature or structure found on Summoner’s Rift.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Nexus",
+        "priorTier": 1
+      },
+      {
+        "name": "Turret",
+        "priorTier": 1
+      },
+      {
+        "name": "Inhibitor",
+        "priorTier": 2
+      },
+      {
+        "name": "Fountain",
+        "priorTier": 2
+      },
+      {
+        "name": "Inhibitor Turret",
+        "priorTier": 3
+      },
+      {
+        "name": "Nexus Turret",
+        "priorTier": 3
+      },
+      {
+        "name": "Blast Cone",
+        "priorTier": 4
+      },
+      {
+        "name": "Scryer’s Bloom",
+        "priorTier": 4
+      }
+    ]
+  },
+  {
+    "id": "q060",
+    "category": "champions",
+    "tag": "CHAMPIONS",
+    "prompt": "Name a champion who uses a firearm or gun as a primary weapon.",
+    "note": "",
+    "answers": [
+      {
+        "name": "Jinx",
+        "priorTier": 1
+      },
+      {
+        "name": "Caitlyn",
+        "priorTier": 1
+      },
+      {
+        "name": "Miss Fortune",
+        "priorTier": 1
+      },
+      {
+        "name": "Lucian",
+        "priorTier": 2
+      },
+      {
+        "name": "Graves",
+        "priorTier": 2
+      },
+      {
+        "name": "Aphelios",
+        "priorTier": 3
+      },
+      {
+        "name": "Senna",
+        "priorTier": 3
+      },
+      {
+        "name": "Samira",
+        "priorTier": 4
+      },
+      {
+        "name": "Tristana",
+        "priorTier": 4
+      },
+      {
+        "name": "Corki",
+        "priorTier": 5
+      }
+    ]
+  }
+]
