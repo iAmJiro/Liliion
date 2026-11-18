@@ -116,12 +116,12 @@ export default function App() {
         >
           <span className="mark">◈</span>
           <span>
-            LILLION <em>THE GAME</em>
+            RIFT <em>RARITY</em>
           </span>
         </a>
         <div className="header-right">
           <span className="pill">
-            <span className="glow-dot" /> LEAGUE LEGIT GAME
+            <span className="glow-dot" /> LEAGUE FAN GAME
           </span>
           <button
             className="quiet-btn"

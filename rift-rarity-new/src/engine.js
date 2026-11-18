@@ -19,7 +19,43 @@ export const GLOBAL_ALIASES={
   'kaysa':'kaisa','kaisa':'kaisa','khazix':'khazix','chogath':'chogath','reksai':'reksai','velkoz':'velkoz','belveth':'belveth','kogmaw':'kogmaw','aurelionsol':'aurelionsol','jarvan4':'jarvaniv','j4':'jarvaniv','mf':'missfortune','tf':'twistedfate','lb':'leblanc','wukong':'wukong','monkeyking':'wukong',
   'nunu':'nunuandwillump','willump':'nunuandwillump','drmundo':'drmundo','mercs':'mercurystreads','zhonyas':'zhonyashourglass','rabadons':'rabadonsdeathcap','bork':'bladeoftheruinedking','botrk':'bladeoftheruinedking','ie':'infinityedge','ga':'guardianangel','pd':'phantomdancer','frozenheart':'frozenheart','bluebuff':'bluesentinel','redbuff':'redbrambleback','scuttle':'riftscuttler','scuttlecrab':'riftscuttler','baron':'baronnashor','herald':'riftherald'
 };
-export function resolveAnswer(question,input){const raw=norm(input);if(!raw)return null;const canonical=GLOBAL_ALIASES[raw]||raw;for(const a of question.answers){const named=norm(a.name);if(named===canonical||named===raw)return a}return null}
+/** Bounded edit-distance matcher. Exact spellings and known aliases always take precedence.
+ * Only auto-correct unambiguous, close typos within eligible answers for this question.
+ * Does not treat a semantically invalid champion as a valid answer. */
+export function editDistance(a,b,max=2){
+  if(Math.abs(a.length-b.length)>max)return max+1;
+  let previous=Array.from({length:b.length+1},(_,i)=>i);
+  for(let i=1;i<=a.length;i++){
+    const current=[i];let lowest=i;
+    for(let j=1;j<=b.length;j++){
+      const cost=a[i-1]===b[j-1]?0:1;
+      const value=Math.min(previous[j]+1,current[j-1]+1,previous[j-1]+cost);
+      current.push(value);lowest=Math.min(lowest,value);
+    }
+    if(lowest>max)return max+1;
+    previous=current;
+  }
+  return previous[b.length];
+}
+export function matchAnswer(question,input){
+  const raw=norm(input);
+  if(!raw)return null;
+  const canonical=GLOBAL_ALIASES[raw]||raw;
+  const answers=question.answers||[];
+  for(const answer of answers){
+    const named=norm(answer.name);
+    if(named===canonical||named===raw)return {answer,corrected:false};
+  }
+  // Never autocorrect one-, two- or three-letter responses (e.g. "vi").
+  if(canonical.length<4)return null;
+  const maxDistance=canonical.length>=7?2:1;
+  const candidates=answers.map(answer=>({answer,distance:editDistance(canonical,norm(answer.name),maxDistance)}))
+    .filter(candidate=>candidate.distance<=maxDistance && candidate.distance/Math.max(canonical.length,norm(candidate.answer.name).length)<=0.25)
+    .sort((a,b)=>a.distance-b.distance);
+  if(!candidates.length || (candidates[1]&&candidates[1].distance===candidates[0].distance))return null;
+  return {answer:candidates[0].answer,corrected:true};
+}
+export function resolveAnswer(question,input){return matchAnswer(question,input)?.answer||null}
 /** Weighted prior rarity estimator. In this offline release tiers are seeded from curated editorial bands, not live answer analytics. */
 export function rarityFor(answer,observed=null){const priorTier=answer.priorTier;const priors=[.36,.19,.085,.029,.007];const prior=priors[priorTier-1];if(!observed||observed.total<100)return priorTier;const own=Math.max(0,observed.count||0),total=Math.max(0,observed.total);const frequency=(own+100*prior)/(total+100);return frequency>=.20?1:frequency>=.08?2:frequency>=.03?3:frequency>=.01?4:5}
 export function comboMultiplier(streak){return Math.min(1.4,1+Math.max(0,streak-1)*.1)}
