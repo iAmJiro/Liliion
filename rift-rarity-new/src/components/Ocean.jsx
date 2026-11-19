@@ -16,35 +16,76 @@ export function Riftling({className=''}) {
   </svg>;
 }
 
-export default function Ocean({ depth = 0, gain = 0, eventKey = 0 }) {
+const driftBubbles = Array.from({ length: 8 }, (_, index) => ({
+  '--bubble-left': `${7 + (index * 29) % 86}%`,
+  '--bubble-size': `${3 + (index * 7) % 11}px`,
+  '--bubble-duration': `${6 + (index * 3) % 7}s`,
+  '--bubble-delay': `${-index * 1.3}s`,
+}));
+
+function DiveBurst({ big }) {
+  const count = big ? 18 : 10;
+  return (
+    <div className="dive-burst" aria-hidden="true">
+      <span className="dive-ring" />
+      <span className="dive-ring dive-ring-echo" />
+      {Array.from({ length: count }, (_, index) => (
+        <span
+          className="dive-spark"
+          key={index}
+          style={{
+            '--spark-angle': `${index / count * 360}deg`,
+            '--spark-range': `${52 + (index * 37) % 81}px`,
+            '--spark-size': `${3 + index % 6}px`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function Ocean({ depth = 0, gain = 0, eventKey = 0, rewardTier = 0 }) {
   const biome = biomeFor(depth);
   const next = BIOMES.find((entry) => entry.min > depth);
-  const [diving, setDiving] = useState(false);
+  const biomeReached = gain > 0 && biomeFor(depth - gain).key !== biome.key;
+  const bigDive = rewardTier >= 4 || biomeReached;
+  const [lastAnimatedEvent, setLastAnimatedEvent] = useState(null);
+  const diving = gain > 0 && lastAnimatedEvent !== eventKey;
 
   useEffect(() => {
-    if (!gain) {
-      setDiving(false);
-      return;
-    }
-    setDiving(true);
-    const timer = setTimeout(() => setDiving(false), 1300);
+    if (!gain) return;
+    const timer = setTimeout(() => setLastAnimatedEvent(eventKey), 1250);
     return () => clearTimeout(timer);
   }, [eventKey, gain]);
 
   const percent = next ? (depth - biome.min) / (next.min - biome.min) * 100 : 100;
 
   return (
-    <div className={`ocean-scene${diving ? ' is-diving' : ''}`} data-biome={biome.key}>
+    <div
+      className={`ocean-scene tier-${rewardTier}${diving ? ' is-diving' : ''}`}
+      data-biome={biome.key}
+      data-big-dive={bigDive || undefined}
+    >
+      <div className="ocean-currents" aria-hidden="true">
+        <span className="ocean-rays" />
+        {driftBubbles.map((style, index) => <span className="ocean-bubble" key={index} style={style} />)}
+      </div>
+
       <div className="ocean-top"><span className="live-dot" />{biome.name}</div>
       <div className="riftling-position"><Riftling /></div>
+      {diving && <DiveBurst key={eventKey} big={bigDive} />}
       {diving && (
-        <div className="depth-popup" key={eventKey} aria-hidden="true">
-          +{formatDepth(gain)} <Icon name="down" size={19} />
+        <div className="depth-popup" key={`gain-${eventKey}`} aria-hidden="true">
+          <Icon name={bigDive ? 'spark' : 'down'} size={19} /> +{formatDepth(gain)}
         </div>
       )}
+
       <div className="depth-card">
         <p>Expedition depth</p>
-        <strong aria-live="polite" data-testid="depth-value">{depth.toLocaleString()}<small>m</small></strong>
+        <strong aria-live="polite" data-testid="depth-value">
+          <span className="depth-digits" key={depth}>{depth.toLocaleString()}</span><small>m</small>
+        </strong>
+        {biomeReached && <div className="biome-discovery" role="status"><Icon name="gem" size={16} /> New biome reached</div>}
         <div className="milestone-caption">
           <span>{next ? `Next: ${next.name.toLowerCase()}` : 'Deepest biome reached'}</span>
           {next && <span>{formatDepth(next.min)}</span>}

@@ -34,8 +34,8 @@ const questionFor = async page => {
   return question;
 };
 const saveKey = 'rift-rarity-redesign-v1';
-async function context(viewport = { width: 1440, height: 1000 }) {
-  const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
+async function context(viewport = { width: 1440, height: 1000 }, reducedMotion = 'reduce') {
+  const context = await browser.newContext({ viewport, reducedMotion });
   const page = await context.newPage();
   pages.push(page);
   page.on('pageerror', error => errors.push(error.message));
@@ -238,6 +238,84 @@ try {
     assert.ok(await page.getByRole('button', { name: /Let.s dive in/ }).isVisible());
     await ctx.close();
   });
+  await check('A big dive animates the ocean and follows reduced-motion preferences', async () => {
+    const { context: ctx, page } = await context({ width: 1440, height: 1000 }, 'no-preference');
+    const motionSeed = Array.from({ length: 100 }, (_, index) => `motion-${index}`).find(seed =>
+      newExpedition('classic', { now: 0, seed, category: 'champions' }).questions
+        .slice(0, 2).every(question => question.answerIds.some(id => entities.get(id).tier >= 4)),
+    );
+    assert.ok(motionSeed);
+    await startChallenge(page, motionSeed);
+    const scene = page.locator('.ocean-scene');
+    for (let round = 0; round < 2; round++) {
+      const question = await questionFor(page);
+      const answer = question.answerIds.map(id => entities.get(id)).sort((a, b) => b.tier - a.tier)[0];
+      await page.getByTestId('answer-input').fill(answer.name);
+      await page.getByTestId('answer-submit').click();
+      assert.equal(await scene.locator('.dive-spark').count(), 18);
+      const plunges = await scene.locator('.riftling-position').evaluate(element => {
+        const plunge = element.getAnimations().find(animation => animation.animationName === 'riftling-plunge');
+        if (!plunge) return false;
+        plunge.pause();
+        plunge.currentTime = 0;
+        const start = getComputedStyle(element).transform;
+        plunge.currentTime = 540;
+        return getComputedStyle(element).transform !== start;
+      });
+      assert.equal(plunges, true);
+      if (round === 0) {
+        await page.locator('.dive-ring,.dive-spark,.depth-popup').evaluateAll(elements => {
+          for (const element of elements) {
+            for (const animation of element.getAnimations()) {
+              animation.pause();
+              animation.currentTime = 330;
+            }
+          }
+        });
+        await page.screenshot({ path: path.join(output, 'big-dive-desktop.png') });
+      }
+      await page.getByTestId('next-question').click();
+      assert.equal(await scene.locator('.dive-burst').count(), 0);
+    }
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const question = await questionFor(page);
+    await page.getByTestId('answer-input').fill(entities.get(question.answerIds[0]).name);
+    await page.getByTestId('answer-submit').click();
+    assert.equal(await scene.locator('.dive-burst').isVisible(), false);
+    assert.equal(await scene.locator('.riftling-position').evaluate(element => getComputedStyle(element).animationName), 'none');
+    assert.ok(await page.locator('.answer-reveal.success').isVisible());
+    await ctx.close();
+  });
+
+  await check('Missed answer review shows the explanation and valid example answers', async () => {
+    const { context: ctx, page } = await context({ width: 320, height: 844 });
+    await startChallenge(page, veigarSeed);
+    const missed = await questionFor(page);
+    assert.equal(await page.locator('.answer-review').count(), 0);
+    await page.getByRole('button', { name: 'Skip question' }).click();
+    await page.getByTestId('next-question').click();
+    for (let round = 1; round < 7; round++) {
+      const question = await questionFor(page);
+      await page.getByTestId('answer-input').fill(entities.get(question.answerIds[0]).name);
+      await page.getByTestId('answer-submit').click();
+      await page.getByTestId('next-question').click();
+    }
+    await page.getByRole('button', { name: 'Review missed answers (1)' }).click();
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'answer-review-heading');
+    const row = page.locator('.answer-review-row');
+    assert.equal(await row.count(), 1);
+    await row.locator('summary').press('Enter');
+    assert.ok(await row.getByText(missed.explanation, { exact: true }).isVisible());
+    const revealed = await row.locator('.answer-review-examples li').allTextContents();
+    assert.ok(revealed.length > 0);
+    const valid = missed.answerIds.map(id => entities.get(id).name);
+    assert.ok(revealed.every(name => valid.includes(name)));
+    await noOverflow(page);
+    await page.screenshot({ path: path.join(output, 'answer-review-mobile.png'), fullPage: true });
+    await ctx.close();
+  });
+
   await check('No browser runtime exceptions or console errors', async () => {
     assert.deepEqual(errors, []);
     assert.deepEqual(consoleErrors, []);

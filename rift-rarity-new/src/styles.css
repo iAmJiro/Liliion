@@ -611,13 +611,9 @@ img { display: block; max-width: 100%; }
   left: 47%;
   width: clamp(97px, 37%, 174px);
   transform: translate(-50%, -50%);
-  transition: transform .6s cubic-bezier(.25,.65,.3,1.1);
   pointer-events: none;
 }
 .riftling { display: block; width: 100%; height: auto; }
-.riftling-position .riftling { animation: bob 4.6s ease-in-out infinite; }
-.is-diving .riftling-position { transform: translate(-50%, -5%) rotate(-13deg) scale(.81); }
-@keyframes bob { 0%, 100% { transform: translateY(-4px); } 50% { transform: translateY(5px); } }
 .depth-popup {
   position: absolute;
   top: 42%;
@@ -632,12 +628,6 @@ img { display: block; max-width: 100%; }
   transform: translate(-50%, -50%);
   white-space: nowrap;
   font: 710 1.23rem/1 var(--display);
-  animation: depth-gain 1.3s ease both;
-}
-@keyframes depth-gain {
-  0% { opacity: 0; transform: translate(-50%, -22%); }
-  18%, 75% { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%, -100%); }
 }
 .depth-card {
   margin: 12px;
@@ -992,5 +982,4 @@ img { display: block; max-width: 100%; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; transition: none !important; }
-  .is-diving .riftling-position { transform: translate(-50%, -50%); }
 }

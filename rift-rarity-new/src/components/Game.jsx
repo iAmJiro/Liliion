@@ -5,12 +5,40 @@ import { CATEGORY_LABELS, MODE_NAMES, categoryIcon } from './Home.jsx';
 import Ocean from './Ocean.jsx';
 import Icon from './Icon.jsx';
 import { Avatar } from './Knowledge.jsx';
+import './answer-fx.css';
 
 const placeholders = {
   champions: 'Enter a champion name',
   items: 'Enter an item name',
   map: 'Enter an objective or map feature',
 };
+
+const revealSparks = [
+  [-94, -24], [52, -35], [-33, 101], [101, 38], [-144, 44], [25, 128],
+  [-155, 94], [113, 3], [-41, -63], [79, 108], [-175, -10], [2, 63],
+];
+
+function AnswerBurst({ major }) {
+  return (
+    <div className="answer-burst" aria-hidden="true">
+      <span className="answer-burst-ring" />
+      <span className="answer-burst-ring" />
+      {major && <span className="answer-burst-ring" />}
+      <span className="answer-burst-sweep" />
+      {revealSparks.slice(0, major ? revealSparks.length : 6).map(([x, y], index) => (
+        <span
+          className="answer-burst-spark"
+          key={index}
+          style={{
+            '--spark-travel-x': `${x}px`,
+            '--spark-travel-y': `${y}px`,
+            '--spark-delay': `${45 + index * 17}ms`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 function QuestionTimer({ remaining, durationMs, shared, paused }) {
   if (remaining === null) {
@@ -26,9 +54,11 @@ function QuestionTimer({ remaining, durationMs, shared, paused }) {
 
   const seconds = Math.ceil(remaining / 1000);
   const percent = Math.min(100, (remaining / durationMs) * 100);
+  const urgent = remaining <= 5000;
+  const lowTimeActive = urgent && remaining > 0 && !paused;
 
   return (
-    <div className={`timer-section ${remaining <= 5000 ? 'urgent' : ''}`}>
+    <div className={`timer-section${urgent ? ' urgent' : ''}${lowTimeActive ? ' low-time-active' : ''}`}>
       <span className="timer-readout" role="timer">
         <Icon name="clock" size={16} />
         {shared && <span className="timer-context">Time bank</span>}
@@ -70,17 +100,14 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
   const bankExpired = timeBank && !answering && game.timeBankRemainingMs === 0;
   const finishedNext = endless ? game.lives <= 0 : bankExpired || game.index + 1 === questionCount;
   const last = game.last;
+  const rewardTier = last?.rewardTier || last?.tier || 0;
+  const majorDiscovery = rewardTier >= 4;
+  const streakMilestone = last?.correct && (game.streak === 3 || game.streak === 5);
   const topAnswer = commonWins && last?.correct && last.rewardBase === last.bestRewardBase;
   const dotStart = endless ? Math.max(0, game.index - 11) : 0;
   const dotCount = endless ? Math.min(game.index + 1, 12) : questionCount;
 
   useEffect(() => {
-    setInput('');
-    setActive(-1);
-    setListOpen(false);
-    setDismissedNotice(null);
-    setNow(performance.now());
-
     if (!window.matchMedia || window.matchMedia('(pointer: fine)').matches) {
       inputRef.current?.focus({ preventScroll: true });
     }
@@ -140,6 +167,15 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
     }
   }
 
+  function advanceQuestion() {
+    setInput('');
+    setActive(-1);
+    setListOpen(false);
+    setDismissedNotice(null);
+    composing.current = false;
+    onNext();
+  }
+
   function closeSuggestionsOnBlur(event) {
     if (event.currentTarget.contains(event.relatedTarget)) return;
     setListOpen(false);
@@ -197,7 +233,7 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
             })}
           </div>
 
-          <div className="question-content">
+          <div className="question-content" key={game.index}>
             <h1 data-testid="question-prompt">{question.prompt}</h1>
             <p className="question-rule">{question.rule || question.hint}</p>
             {answering && commonWins && (
@@ -265,7 +301,7 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
               <p className="answer-help" id="answer-help">Nicknames are accepted.</p>
               <div role="status">
                 {notice && (
-                  <p className="answer-notice" data-testid="answer-notice">
+                  <p className="answer-notice" data-testid="answer-notice" key={game.lastNow}>
                     <Icon name="info" size={17} />
                     {notice.message}
                   </p>
@@ -289,7 +325,11 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
               </div>
             </form>
           ) : (
-            <div className={`answer-reveal ${last?.correct ? 'success' : 'miss'} tier-${last?.rewardTier || last?.tier || 0}`} role="status">
+            <div
+              className={`answer-reveal ${last?.correct ? 'success' : 'miss'} tier-${rewardTier}${majorDiscovery ? ' is-major-discovery' : ''}`}
+              role="status"
+            >
+              {last?.correct && <AnswerBurst major={majorDiscovery} />}
               <div className="reveal-label">
                 <Icon name={topAnswer ? 'trophy' : last?.correct ? 'spark' : 'info'} size={18} />
                 {topAnswer ? 'Most common answer' : last?.correct ? `${last.rarity} discovery` : last?.rarity}
@@ -299,6 +339,12 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
                 <div className="reveal-depth">
                   +{last.gain.toLocaleString()} <span>metres</span>
                 </div>
+              )}
+              {streakMilestone && (
+                <p className={`streak-celebration${game.streak === 5 ? ' max-combo' : ''}`}>
+                  <Icon name="spark" size={15} />
+                  {game.streak === 5 ? 'Max combo · 5 correct in a row' : '3 correct in a row'}
+                </p>
               )}
               <p>{last?.detail}</p>
               {last?.examples?.length > 0 && (
@@ -314,7 +360,7 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
                   </div>
                 </div>
               )}
-              <button ref={nextRef} className="button button-primary" data-testid="next-question" onClick={onNext}>
+              <button ref={nextRef} className="button button-primary" data-testid="next-question" onClick={advanceQuestion}>
                 {finishedNext ? 'See expedition results' : 'Continue the descent'} <Icon name="arrow" />
               </button>
             </div>
@@ -322,9 +368,9 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
         </div>
 
         <aside className="expedition-panel" aria-label="Dive progress">
-          <Ocean depth={game.depth} gain={last?.gain || 0} eventKey={game.log.length} />
+          <Ocean depth={game.depth} gain={last?.gain || 0} rewardTier={rewardTier} eventKey={game.log.length} />
           <div className="dive-stats" aria-label="Expedition stats">
-            <div>
+            <div className={game.streak >= 5 ? 'combo-maxed' : undefined}>
               <Icon name="spark" size={17} />
               <b>×{comboMultiplier(game.streak).toFixed(1)}</b>
               <span>combo</span>
