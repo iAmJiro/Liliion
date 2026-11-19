@@ -1,24 +1,29 @@
 /** Device-local progress with defensive migration from the earlier React release. */
 import { BIOMES, getEntity } from './engine.js';
+import { MODES } from './session.js';
 
 export const PROFILE_KEY = 'rift-rarity-redesign-v1';
-const modes = ['classic', 'daily', 'endless', 'practice'];
 const object = value => value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 const count = (value, max = 1_000_000_000) => typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.min(max, Math.floor(value))) : 0;
 const strings = (value, limit = 5000) => Array.isArray(value) ? [...new Set(value.filter(x => typeof x === 'string' && x.length <= 180))].slice(0, limit) : [];
 const day = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : 'Unknown date';
 export const freshProfile = () => ({
-  version: 2, xp: 0, runs: 0, bests: { classic: 0, daily: 0, endless: 0, practice: 0 },
+  version: 2, xp: 0, runs: 0,
+  bests: Object.fromEntries(MODES.map(mode => [mode, 0])),
   relics: [], discoveries: [], history: [], daily: {}, audio: false,
   stats: { answered: 0, correct: 0, bestStreak: 0, mythic: 0, perfectRuns: 0 },
   achievements: [], completedRunIds: [],
 });
 
+export function bestTimedDepth(profile) {
+  return Math.max(0, ...MODES.filter(mode => mode !== 'practice').map(mode => count(profile.bests[mode])));
+}
+
 export function sanitiseProfile(value) {
   const input = object(value), fresh = freshProfile();
   if (![1, 2].includes(input.version)) return fresh;
   const bests = object(input.bests), rawStats = object(input.stats);
-  const history = (Array.isArray(input.history) ? input.history : []).filter(x => x && typeof x === 'object' && modes.includes(x.mode)).slice(0, 30).map(x => ({
+  const history = (Array.isArray(input.history) ? input.history : []).filter(x => x && typeof x === 'object' && MODES.includes(x.mode)).slice(0, 30).map(x => ({
     id: typeof x.id === 'string' ? x.id.slice(0, 180) : '', mode: x.mode,
     category: ['champions', 'items', 'map', 'all'].includes(x.category) ? x.category : 'all',
     date: day(x.date), depth: count(x.depth), correct: count(x.correct), answered: count(x.answered),
@@ -31,7 +36,7 @@ export function sanitiseProfile(value) {
   }
   return {
     ...fresh, xp: count(input.xp), runs: count(input.runs),
-    bests: Object.fromEntries(modes.map(mode => [mode, count(bests[mode])])),
+    bests: Object.fromEntries(MODES.map(mode => [mode, count(bests[mode])])),
     relics: strings(input.relics).filter(id => BIOMES.some(b => b.key === id)),
     discoveries: strings(input.discoveries).filter(id => getEntity(id)), history, daily,
     audio: input.audio === true,
@@ -75,7 +80,7 @@ export function earnedXp(game) {
 }
 /** Pure and idempotent: React can repeat this transition without doubling rewards. */
 export function completeRun(oldProfile, game) {
-  if (!game || game.status !== 'complete') return oldProfile;
+  if (!game || game.status !== 'complete' || !MODES.includes(game.mode)) return oldProfile;
   const profile = sanitiseProfile(oldProfile);
   if (profile.completedRunIds.includes(game.id)) return oldProfile;
   // An empty endless run is not an XP-farming expedition.

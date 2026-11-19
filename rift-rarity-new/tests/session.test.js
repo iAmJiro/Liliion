@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CATALOG, CONTENT_VERSION, QUESTIONS } from '../src/data/content.js';
 import { getEntity } from '../src/engine.js';
-import { newExpedition, settle, nextQuestion, finishRun } from '../src/session.js';
+import { newExpedition, settle, nextQuestion, finishRun, TIME_BANK_MS } from '../src/session.js';
 
 const make = (mode = 'classic', extra = {}) => newExpedition(mode, { now: 1000, seed: 'test', day: '2026-11-18', ...extra });
 const valid = g => getEntity(g.questions[g.index].answerIds[0]).name;
@@ -156,4 +156,95 @@ test('monotonic time is required; late invalid inputs cannot keep a timed questi
   assert.throws(() => newExpedition('classic'), /monotonic/);
   const game = make();
   assert.equal(settle(game, 'nonsense', { now: 27000 }).last.kind, 'timeout');
+});
+
+test('Common Wins favors questions with multiple payouts in every category', () => {
+  for (const category of ['all', 'champions', 'items', 'map']) {
+    const game = make('common', { category });
+    assert.equal(game.questions.length, 7);
+    assert.equal(game.deadline, 26000);
+    for (const question of game.questions) {
+      assert.ok(category === 'all' || question.category === category);
+      assert.ok(new Set(question.answerIds.map(id => getEntity(id).tier)).size > 1);
+    }
+  }
+});
+
+test('Common Wins flips base rewards, preserves rarity and applies the combo', () => {
+  const question = QUESTIONS.find(q => q.id === 'c-any');
+  const game = { ...make('common'), questions: [question], streak: 2 };
+  const familiar = settle(game, 'Ahri', { now: 2000 });
+  const rare = settle(game, 'Kled', { now: 2000 });
+  const skipped = settle(game, '', { now: 2000 });
+
+  assert.equal(familiar.last.rarity, 'Common');
+  assert.equal(familiar.last.tier, 1);
+  assert.equal(familiar.last.rewardTier, 5);
+  assert.equal(familiar.last.rewardBase, 800);
+  assert.equal(familiar.last.bestRewardBase, 800);
+  assert.equal(familiar.last.gain, 960);
+  assert.match(familiar.last.detail, /800 m base/);
+  assert.equal(rare.last.rarity, 'Mythic');
+  assert.equal(rare.last.rewardTier, 1);
+  assert.equal(rare.last.rewardBase, 100);
+  assert.equal(rare.last.bestRewardBase, 800);
+  assert.equal(rare.last.gain, 120);
+  assert.equal(rare.last.examples[0].tier, 1);
+  assert.equal(skipped.last.bestRewardBase, 800);
+});
+
+test('Deep Cuts uses seven niche questions and keeps the category choice', () => {
+  for (const category of ['all', 'champions', 'items', 'map']) {
+    const game = make('deep', { category });
+    assert.equal(game.category, category);
+    assert.equal(game.questions.length, 7);
+    assert.equal(game.deadline, 26000);
+    assert.ok(game.questions.every(q =>
+      q.id.includes('-niche-') && (category === 'all' || q.category === category),
+    ));
+  }
+});
+
+test('Time Bank carries the remaining time through skips and answers and pauses during reveals', () => {
+  const game = make('timebank', { category: 'items' });
+  assert.equal(game.questions.length, 7);
+  assert.ok(game.questions.every(q => q.category === 'items'));
+  assert.equal(game.durationMs, TIME_BANK_MS);
+  assert.equal(game.deadline, 1000 + TIME_BANK_MS);
+
+  const retry = settle(game, 'this is not a known item', { now: 2000 });
+  assert.equal(retry.notice.message, 'Try again');
+  assert.equal(retry.deadline, game.deadline);
+
+  const skipped = settle(retry, '', { now: 4000 });
+  assert.equal(skipped.status, 'revealing');
+  assert.equal(skipped.deadline, null);
+  assert.equal(skipped.timeBankRemainingMs, TIME_BANK_MS - 3000);
+
+  const next = nextQuestion(skipped, { now: 100_000 });
+  assert.equal(next.index, 1);
+  assert.equal(next.deadline, 100_000 + TIME_BANK_MS - 3000);
+  const answered = settle(next, valid(next), { now: 105_000 });
+  assert.equal(answered.last.kind, 'correct');
+  assert.equal(answered.timeBankRemainingMs, TIME_BANK_MS - 8000);
+
+  const third = nextQuestion(answered, { now: 120_000 });
+  assert.equal(third.deadline, 120_000 + TIME_BANK_MS - 8000);
+  const expired = settle(third, valid(third), { now: third.deadline });
+  assert.equal(expired.last.kind, 'timeout');
+  assert.equal(expired.status, 'revealing');
+  assert.equal(expired.timeBankRemainingMs, 0);
+  assert.equal(expired.depth, answered.depth);
+  assert.ok(expired.last.examples.length);
+  const finished = nextQuestion(expired, { now: third.deadline + 1_000 });
+  assert.equal(finished.status, 'complete');
+  assert.equal(finished.log.length, 3);
+});
+
+test('Time Bank completes after seven answers even when time remains', () => {
+  const game = complete('timebank');
+  assert.equal(game.status, 'complete');
+  assert.equal(game.correct, 7);
+  assert.equal(game.log.length, 7);
+  assert.ok(game.timeBankRemainingMs > 0);
 });

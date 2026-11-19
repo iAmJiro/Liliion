@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CATALOG, QUESTIONS, CONTENT_VERSION } from '../src/data/content.js';
 import { newExpedition } from '../src/session.js';
+import { BASE_DEPTH } from '../src/engine.js';
 
 const require = createRequire(import.meta.url);
 let playwright;
@@ -169,6 +170,59 @@ try {
       await ctx.close();
     }
   });
+  await check('Common Wins rewards the most familiar valid answer and Deep Cuts keeps the category', async () => {
+    const { context: ctx, page } = await context({ width: 390, height: 844 });
+    await openHome(page);
+    await page.getByRole('link', { name: 'Browse modes' }).click();
+    await page.getByRole('button', { name: 'Champions', exact: true }).click();
+    await page.getByRole('button', { name: 'Common Wins', exact: true }).click();
+    const question = await questionFor(page);
+    assert.equal(question.category, 'champions');
+    const top = question.answerIds.map(id => entities.get(id)).sort((a, b) => a.tier - b.tier)[0];
+    await page.getByTestId('answer-input').fill(top.name);
+    await page.getByTestId('answer-submit').click();
+    const reveal = page.locator('.answer-reveal');
+    assert.match(await reveal.innerText(), /Most common answer/);
+    assert.match(await reveal.innerText(), new RegExp('\\+' + BASE_DEPTH.at(-top.tier)));
+    await noOverflow(page);
+    await page.screenshot({ path: path.join(output, 'common-wins-mobile.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Leave expedition', exact: true }).click();
+    await page.getByRole('button', { name: 'Leave run', exact: true }).click();
+    assert.equal(await page.getByRole('button', { name: 'Champions', exact: true }).getAttribute('aria-pressed'), 'true');
+    await page.getByRole('button', { name: 'Deep Cuts', exact: true }).click();
+    const deepQuestion = await questionFor(page);
+    assert.equal(deepQuestion.category, 'champions');
+    assert.ok(deepQuestion.id.startsWith('c-niche-'));
+    await ctx.close();
+  });
+
+  await check('Time Bank pauses during reveals and ends the run when the shared clock runs out', async () => {
+    const { context: ctx, page } = await context();
+    await openHome(page);
+    await page.getByRole('button', { name: 'Time Bank', exact: true }).click();
+    const timer = page.getByRole('timer');
+    assert.match(await timer.innerText(), /Time bank.*60s/s);
+    await page.clock.fastForward(9_000);
+    const first = await questionFor(page);
+    await page.getByTestId('answer-input').fill(entities.get(first.answerIds[0]).name);
+    await page.getByTestId('answer-submit').click();
+    assert.match(await timer.innerText(), /51s.*Paused/s);
+    await page.clock.fastForward(90_000);
+    assert.match(await timer.innerText(), /51s.*Paused/s);
+    await page.getByTestId('next-question').click();
+    assert.match(await timer.innerText(), /51s/);
+    assert.doesNotMatch(await timer.innerText(), /Paused/);
+    await page.clock.fastForward(52_000);
+    assert.match(await page.locator('.answer-reveal').innerText(), /Time bank used up/);
+    assert.match(await page.getByTestId('next-question').innerText(), /See expedition results/);
+    await page.getByTestId('next-question').click();
+    const results = page.getByTestId('results');
+    assert.match(await results.innerText(), /The shared clock ran out/);
+    assert.match(await results.innerText(), /1\s*\/\s*7/);
+    assert.ok(JSON.parse(await page.evaluate(key => localStorage.getItem(key), saveKey)).bests.timebank > 0);
+    await ctx.close();
+  });
+
   await check('Timed run actually expires after 25 seconds', async () => {
     const { context: ctx, page } = await context();
     await startChallenge(page, veigarSeed);

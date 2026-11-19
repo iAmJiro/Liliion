@@ -7,6 +7,7 @@ export default function Icon({name='spark',size=20,className='',...props}) {
     clock:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
     spark:<path d="m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3 3-7Z"/>,
     gem:<path d="m5 4-3 6 10 11 10-11-3-6H5Zm-3 6h20M8 4l-2 6 6 11 6-11-2-6"/>,
+    shuffle:<path d="M3 6h2c5 0 6 12 11 12h5m-4-4 4 4-4 4M3 18h2c2 0 3-2 4-4m4-4c1-2 2-4 4-4h4m-4-4 4 4-4 4"/>,
     waves:<path d="M2 6q3-4 7 0t7 0 6 0M2 12q3-4 7 0t7 0 6 0M2 18q3-4 7 0t7 0 6 0"/>,
     sword:<path d="m4 20 4-4m-3-3 6 6m-3-3L20 4V2h-2L6 14"/>,
     map:<path d="m3 5 6-3 6 3 6-3v17l-6 3-6-3-6 3V5Zm6-3v17m6-14v17"/>,

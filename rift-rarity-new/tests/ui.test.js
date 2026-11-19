@@ -277,6 +277,35 @@ test('Endless can surface and save, and a fresh empty run awards no progress', a
   assert.equal(JSON.parse(localStorage.getItem(SAVE_KEY)).runs, 1);
 });
 
+test('Mystery preserves the selected category, records the picked mode, and rerolls to a different one', async () => {
+  await mount();
+  await click('Items');
+  const random = Math.random;
+  Math.random = () => 0;
+  try {
+    await click(document.querySelector('.mode-mystery'));
+    assert.match(document.querySelector('.mode-label').textContent, /Mystery pick.*Classic Dive/s);
+    for (let i = 0; i < 7; i++) {
+      assert.equal(currentQuestion().category, 'items');
+      await click(/Skip question/);
+      await click(byTestId('next-question'));
+    }
+    assert.ok(byTestId('results'));
+    const profile = JSON.parse(localStorage.getItem(SAVE_KEY));
+    assert.equal(profile.history[0].mode, 'classic');
+    assert.equal(Object.hasOwn(profile.bests, 'mystery'), false);
+    await click(/Roll another mode/);
+    assert.match(document.querySelector('.mode-label').textContent, /Mystery pick/);
+    assert.doesNotMatch(document.querySelector('.mode-label').textContent, /Classic Dive/);
+    assert.equal(currentQuestion().category, 'items');
+    await click(/Leave expedition/);
+    await click('Leave run');
+    assert.equal(button('Items').getAttribute('aria-pressed'), 'true');
+  } finally {
+    Math.random = random;
+  }
+});
+
 test('Malformed legacy progress does not blank React and valid old records migrate', async () => {
   await mount({ rawSave: JSON.stringify({ version: 1, xp: 'broken', history: [null, { mode: 77 }], bests: [], daily: [], relics: [null, {}] }) });
   assert.ok(button(/Let.s dive in/));

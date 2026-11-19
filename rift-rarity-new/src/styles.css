@@ -352,7 +352,14 @@ img { display: block; max-width: 100%; }
 
 .game-screen { padding-top: 18px; }
 .game-toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
-.mode-label { display: inline-flex; align-items: center; gap: 8px; color: var(--mint); font-size: .875rem; font-weight: 650; }
+.mode-label { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 5px 9px; color: var(--mint); font-size: .875rem; font-weight: 650; text-align: right; }
+.mystery-label { display: inline-flex; align-items: center; gap: 5px; color: #d5c6ff; font-size: .77rem; }
+.mode-rule { display: flex; align-items: flex-start; gap: 7px; margin-top: 12px; color: #f3da9f; font-size: .84rem; line-height: 1.45; }
+.mode-rule svg { margin-top: 2px; }
+.timer-section .timer-context { font-size: .8rem; }
+.timer-section .timer-paused { padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; font-size: .72rem; }
+.example-answers small { margin-left: 6px; color: var(--mint); font-size: .75rem; white-space: nowrap; }
+.stats-grid.mode-records { grid-template-columns: repeat(auto-fit, minmax(min(100%, 132px), 1fr)); }
 .game-layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, .9fr); align-items: start; gap: 18px; }
 .question-panel {
   min-width: 0;
@@ -797,6 +804,7 @@ img { display: block; max-width: 100%; }
 .final-depth { margin-top: 11px; color: var(--mint); font: 710 clamp(3rem, 9vw, 6.2rem)/1 var(--display); letter-spacing: -.07em; }
 .final-depth span { margin-left: 8px; color: var(--muted); font: 650 clamp(.82rem, 2vw, 1.2rem)/1 "Segoe UI", sans-serif; letter-spacing: 0; }
 .result-description { margin-top: 9px; color: var(--muted); font-size: .9rem; }
+.result-milestone { display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--mint); font-weight: 650; }
 .result-stats {
   width: min(100%, 530px);
   display: grid;

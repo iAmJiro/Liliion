@@ -7,16 +7,39 @@ import {
   resolveInput,
   award,
   getEntity,
+  rarityFor,
+  BASE_DEPTH,
   BIOMES,
 } from "./engine.js";
 
 export const TURN_MS = 25_000;
-export const MODES = ["classic", "daily", "endless", "practice"];
+export const TIME_BANK_MS = 60_000;
+export const MODES = ["classic", "daily", "endless", "practice", "common", "deep", "timebank"];
+
 function clock(now) {
   if (!Number.isFinite(now) || now < 0)
     throw new TypeError("Supply a non-negative monotonic time as options.now.");
   return now;
 }
+function answerRarity(id) {
+  return rarityFor(getEntity(id));
+}
+
+function modeQuestions(bank, mode, category) {
+  if (mode === "deep") return bank.filter((question) => question.id.includes("-niche-"));
+  if (mode !== "common") return bank;
+
+  const available = bank.filter((question) => category === "all" || question.category === category);
+  const multipleAnswers = available.filter((question) => question.answerIds.length > 1);
+  const multipleRewards = multipleAnswers.filter((question) => {
+    const tiers = question.answerIds.map(answerRarity);
+    return tiers.some((tier) => tier !== tiers[0]);
+  });
+  // Start with questions where an alternative answer can change the payout.
+  if (multipleRewards.length >= 7) return multipleRewards;
+  return multipleAnswers.length >= 7 ? multipleAnswers : available;
+}
+
 export function newExpedition(mode = "classic", options = {}) {
   if (!MODES.includes(mode)) throw new TypeError("Unknown game mode.");
   const now = clock(options.now);
@@ -32,7 +55,7 @@ export function newExpedition(mode = "classic", options = {}) {
       ? `daily:${CONTENT_VERSION}:${day}`
       : String(options.seed ?? `expedition:${day}:${now}`);
   const challengeBank = mode === "classic" ? questionBankFor(options.bankVersion) : null;
-  const bank = options.questions || challengeBank || QUESTIONS;
+  const bank = modeQuestions(options.questions || challengeBank || QUESTIONS, mode, category);
   const questions = chooseQuestions(
     bank,
     seed,
@@ -41,7 +64,7 @@ export function newExpedition(mode = "classic", options = {}) {
   );
   if (questions.length < 7)
     throw new Error("This category needs at least seven complete questions.");
-  const durationMs = mode === "practice" ? 0 : TURN_MS;
+  const durationMs = mode === "practice" ? 0 : mode === "timebank" ? TIME_BANK_MS : TURN_MS;
   return {
     id: options.id || `${mode}-${hashSeed(seed)}-${Math.round(now * 1000)}`,
     mode,
@@ -59,6 +82,7 @@ export function newExpedition(mode = "classic", options = {}) {
     lives: 3,
     status: "answering",
     durationMs,
+    timeBankRemainingMs: mode === "timebank" ? durationMs : null,
     deadline: durationMs ? now + durationMs : null,
     lastNow: now,
     cycle: 0,
@@ -68,16 +92,35 @@ export function newExpedition(mode = "classic", options = {}) {
     newRelics: [],
   };
 }
-function examplesFor(question, submittedId) {
+function commonRewardTier(tier) {
+  return BASE_DEPTH.length + 1 - tier;
+}
+
+function scoreAnswer(entity, streak, mostCommonWins) {
+  const score = award(entity, streak);
+  if (!mostCommonWins) return { ...score, rewardTier: score.tier };
+
+  const rewardTier = commonRewardTier(score.tier);
+  const base = BASE_DEPTH[rewardTier - 1];
+  return { ...score, rewardTier, base, depth: Math.round(base * score.multiplier) };
+}
+
+function examplesFor(question, submittedId, mostCommonWins) {
+  const tierOrder = mostCommonWins ? 1 : -1;
   return question.answerIds
     .filter((id) => id !== submittedId)
     .map((id) => getEntity(id))
     .filter(Boolean)
     .sort(
-      (a, b) => (b.tier || 1) - (a.tier || 1) || a.name.localeCompare(b.name),
+      (a, b) => tierOrder * (rarityFor(a) - rarityFor(b)) || a.name.localeCompare(b.name),
     )
     .slice(0, 5)
-    .map((entity) => ({ id: entity.id, name: entity.name, tier: entity.tier }));
+    .map((entity) => ({
+      id: entity.id,
+      name: entity.name,
+      tier: entity.tier,
+      ...(mostCommonWins && { rewardBase: BASE_DEPTH[commonRewardTier(rarityFor(entity)) - 1] }),
+    }));
 }
 export function settle(game, value = "", options = {}) {
   if (!game || game.status !== "answering") return game;
@@ -111,7 +154,12 @@ export function settle(game, value = "", options = {}) {
     };
   }
   const streak = correct ? game.streak + 1 : 0;
-  const score = correct ? award(entity, streak) : null;
+  const mostCommonWins = game.mode === "common";
+  const sharedClock = game.mode === "timebank";
+  const score = correct ? scoreAnswer(entity, streak, mostCommonWins) : null;
+  const bestRewardBase = mostCommonWins
+    ? BASE_DEPTH[commonRewardTier(Math.min(...question.answerIds.map(answerRarity))) - 1]
+    : null;
   const depth = game.depth + (score?.depth || 0);
   const kind = correct ? "correct" : expired ? "timeout" : "skipped";
   const explanation =
@@ -122,7 +170,9 @@ export function settle(game, value = "", options = {}) {
   if (correct)
     detail = `${resolved.corrected ? `Recognised as ${entity.name}. ` : ""}${score.base} m base × ${score.multiplier.toFixed(1)} streak bonus. ${explanation}`;
   else if (expired)
-    detail = "Time is up. Your existing depth is safe; the streak resets.";
+    detail = sharedClock
+      ? "The shared clock has run out."
+      : "Time is up. Your existing depth is safe; the streak resets.";
   else
     detail =
       "Question skipped. Your existing depth is safe; the streak resets.";
@@ -138,11 +188,14 @@ export function settle(game, value = "", options = {}) {
       (expired ? "Time expired" : "Skipped"),
     gain: score?.depth || 0,
     tier: score?.tier || 0,
+    rewardTier: score?.rewardTier || 0,
+    rewardBase: score?.base || 0,
+    bestRewardBase,
     detail,
     correct,
     kind,
     corrected: Boolean(correct && resolved.corrected),
-    examples: examplesFor(question, entity?.id),
+    examples: examplesFor(question, entity?.id, mostCommonWins),
   };
   // Unlock every crossed milestone, including those skipped by a large reward.
   const newRelics = [
@@ -163,6 +216,8 @@ export function settle(game, value = "", options = {}) {
         ? Math.max(0, game.lives - 1)
         : game.lives,
     status: "revealing",
+    deadline: sharedClock ? null : game.deadline,
+    timeBankRemainingMs: sharedClock ? Math.max(0, game.deadline - now) : null,
     last,
     log: [...game.log, last],
     notice: null,
@@ -176,6 +231,7 @@ export function nextQuestion(game, options = {}) {
   const index = game.index + 1;
   if (
     (game.mode === "endless" && game.lives <= 0) ||
+    (game.mode === "timebank" && game.timeBankRemainingMs === 0) ||
     (game.mode !== "endless" && index >= game.questions.length)
   ) {
     return { ...game, status: "complete", notice: null, lastNow: now };
@@ -195,6 +251,7 @@ export function nextQuestion(game, options = {}) {
       [fresh[0], fresh[1]] = [fresh[1], fresh[0]];
     questions = [...questions, ...fresh];
   }
+  const remainingMs = game.timeBankRemainingMs ?? game.durationMs;
   return {
     ...game,
     questions,
@@ -203,7 +260,7 @@ export function nextQuestion(game, options = {}) {
     status: "answering",
     last: null,
     notice: null,
-    deadline: game.durationMs ? now + game.durationMs : null,
+    deadline: remainingMs ? now + remainingMs : null,
     lastNow: now,
   };
 }

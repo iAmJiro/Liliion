@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { comboMultiplier, suggestions } from '../engine.js';
+import { comboMultiplier, formatDepth, suggestions } from '../engine.js';
 import { CATALOG } from '../data/content.js';
 import { CATEGORY_LABELS, MODE_NAMES, categoryIcon } from './Home.jsx';
 import Ocean from './Ocean.jsx';
@@ -12,7 +12,7 @@ const placeholders = {
   map: 'Enter an objective or map feature',
 };
 
-function QuestionTimer({ remaining, durationMs }) {
+function QuestionTimer({ remaining, durationMs, shared, paused }) {
   if (remaining === null) {
     return (
       <div className="timer-section">
@@ -31,8 +31,10 @@ function QuestionTimer({ remaining, durationMs }) {
     <div className={`timer-section ${remaining <= 5000 ? 'urgent' : ''}`}>
       <span className="timer-readout" role="timer">
         <Icon name="clock" size={16} />
+        {shared && <span className="timer-context">Time bank</span>}
         <strong>{seconds}s</strong>
         <span className="sr-only"> remaining</span>
+        {paused && remaining > 0 && <span className="timer-paused">Paused</span>}
       </span>
       <div className="timer-track" aria-hidden="true">
         <i style={{ width: `${percent}%` }} />
@@ -53,16 +55,22 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
   const question = game.questions[game.index];
   const answering = game.status === 'answering';
   const endless = game.mode === 'endless';
+  const commonWins = game.mode === 'common';
+  const timeBank = game.mode === 'timebank';
   const options = useMemo(
     () => suggestions(input, question.category, CATALOG, 5),
     [input, question.category],
   );
   const showSuggestions = listOpen && options.length > 0;
   const notice = game.notice === dismissedNotice ? null : game.notice;
-  const remaining = game.deadline === null ? null : Math.max(0, game.deadline - now);
+  const remaining = timeBank && !answering
+    ? game.timeBankRemainingMs
+    : game.deadline === null ? null : Math.max(0, game.deadline - Math.max(now, game.lastNow));
   const questionCount = game.questions.length;
-  const finishedNext = endless ? game.lives <= 0 : game.index + 1 === questionCount;
+  const bankExpired = timeBank && !answering && game.timeBankRemainingMs === 0;
+  const finishedNext = endless ? game.lives <= 0 : bankExpired || game.index + 1 === questionCount;
   const last = game.last;
+  const topAnswer = commonWins && last?.correct && last.rewardBase === last.bestRewardBase;
   const dotStart = endless ? Math.max(0, game.index - 11) : 0;
   const dotCount = endless ? Math.min(game.index + 1, 12) : questionCount;
 
@@ -155,7 +163,10 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
           <Icon name="back" size={16} />
           Leave expedition
         </button>
-        <span className="mode-label">{MODE_NAMES[game.mode]}</span>
+        <span className="mode-label">
+          {game.mystery && <span className="mystery-label"><Icon name="shuffle" size={15} />Mystery pick</span>}
+          {MODE_NAMES[game.mode]}
+        </span>
       </div>
 
       <div className="game-layout">
@@ -165,7 +176,9 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
               <Icon name={categoryIcon[question.category]} size={16} />
               {CATEGORY_LABELS[question.category]}
             </span>
-            {answering && <QuestionTimer remaining={remaining} durationMs={game.durationMs} />}
+            {(answering || timeBank) && (
+              <QuestionTimer remaining={remaining} durationMs={game.durationMs} shared={timeBank} paused={!answering} />
+            )}
             <span className="question-number">
               <span className="sr-only">Question </span>
               <span data-testid="question-number">
@@ -187,6 +200,9 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
           <div className="question-content">
             <h1 data-testid="question-prompt">{question.prompt}</h1>
             <p className="question-rule">{question.rule || question.hint}</p>
+            {answering && commonWins && (
+              <p className="mode-rule"><Icon name="trophy" size={16} />Familiar answers score highest in this mode.</p>
+            )}
           </div>
 
           {answering ? (
@@ -273,12 +289,12 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
               </div>
             </form>
           ) : (
-            <div className={`answer-reveal ${last?.correct ? 'success' : 'miss'} tier-${last?.tier || 0}`} role="status">
+            <div className={`answer-reveal ${last?.correct ? 'success' : 'miss'} tier-${last?.rewardTier || last?.tier || 0}`} role="status">
               <div className="reveal-label">
-                <Icon name={last?.correct ? 'spark' : 'info'} size={18} />
-                {last?.correct ? `${last.rarity} discovery` : last?.rarity}
+                <Icon name={topAnswer ? 'trophy' : last?.correct ? 'spark' : 'info'} size={18} />
+                {topAnswer ? 'Most common answer' : last?.correct ? `${last.rarity} discovery` : last?.rarity}
               </div>
-              <h2>{last?.correct ? last.answer : last?.kind === 'timeout' ? 'Time’s up.' : 'Question skipped.'}</h2>
+              <h2>{last?.correct ? last.answer : bankExpired ? 'Time bank used up' : last?.kind === 'timeout' ? 'Time’s up.' : 'Question skipped.'}</h2>
               {last?.correct && (
                 <div className="reveal-depth">
                   +{last.gain.toLocaleString()} <span>metres</span>
@@ -287,10 +303,13 @@ export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurfac
               <p>{last?.detail}</p>
               {last?.examples?.length > 0 && (
                 <div className="example-answers">
-                  <span>{last.correct ? 'Other discoveries' : 'Answers that fit'}</span>
+                  <span>{commonWins ? 'Answers by base payout' : last.correct ? 'Other discoveries' : 'Answers that fit'}</span>
                   <div>
                     {last.examples.slice(0, 4).map((entity, index) => (
-                      <span key={entity.id || index}>{typeof entity === 'string' ? entity : entity.name}</span>
+                      <span key={entity.id || index}>
+                        {typeof entity === 'string' ? entity : entity.name}
+                        {entity.rewardBase > 0 && <small>{formatDepth(entity.rewardBase)}</small>}
+                      </span>
                     ))}
                   </div>
                 </div>

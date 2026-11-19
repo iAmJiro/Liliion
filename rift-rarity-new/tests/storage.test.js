@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { freshProfile, sanitiseProfile, loadProfile, saveProfile, completeRun, PROFILE_KEY } from '../src/storage.js';
+import { freshProfile, sanitiseProfile, loadProfile, saveProfile, completeRun, bestTimedDepth, PROFILE_KEY } from '../src/storage.js';
 import { newExpedition, settle, nextQuestion } from '../src/session.js';
 import { getEntity } from '../src/engine.js';
 const run = () => {
@@ -16,6 +16,7 @@ test('old progress migrates without losing legitimate XP, records or relics', ()
   assert.equal(p.version, 2);
   assert.equal(p.xp, 1234);
   assert.equal(p.bests.classic, 4000);
+  for (const mode of ['common', 'deep', 'timebank']) assert.equal(p.bests[mode], 0);
   assert.equal(p.history[0].correct, 7);
   assert.equal(p.audio, true);
   assert.ok(p.stats);
@@ -43,6 +44,36 @@ test('profile roundtrip saves the original key and sanitized state', () => {
   assert.ok(memory.has(PROFILE_KEY));
   assert.equal(loadProfile(store).xp, 900);
 });
+test('new timed modes keep separate records and survive a save and reload', () => {
+  const game = run();
+  const profile = sanitiseProfile({
+    version: 2,
+    bests: { classic: 600, practice: 9000 },
+    daily: { '2026-11-17': { depth: 700, correct: 4 } },
+  });
+  let progress = profile;
+  const depths = { common: 1000, deep: 2000, timebank: 3000 };
+  for (const [mode, depth] of Object.entries(depths)) {
+    progress = completeRun(progress, { ...game, id: mode, mode, depth });
+  }
+
+  const memory = new Map();
+  const store = { getItem: key => memory.get(key), setItem: (key, value) => memory.set(key, value) };
+  assert.equal(saveProfile(progress, store), true);
+  const loaded = loadProfile(store);
+  for (const [mode, depth] of Object.entries(depths)) assert.equal(loaded.bests[mode], depth);
+  assert.equal(loaded.bests.classic, 600);
+  assert.equal(loaded.bests.practice, 9000);
+  assert.equal(bestTimedDepth(loaded), 3000);
+  assert.deepEqual(loaded.history.map(entry => entry.mode), ['timebank', 'deep', 'common']);
+  assert.deepEqual(loaded.daily, profile.daily);
+  assert.equal(loaded.runs, 3);
+  assert.ok(loaded.xp > 0);
+
+  assert.equal(completeRun(loaded, { ...game, mode: 'mystery' }), loaded);
+  assert.equal(Object.hasOwn(loaded.bests, 'mystery'), false);
+});
+
 test('completed expedition rewards are idempotent and accumulate personal statistics', () => {
   const game = run();
   const first = completeRun(freshProfile(), game);

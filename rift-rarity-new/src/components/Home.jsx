@@ -1,7 +1,8 @@
-import { useState } from 'react';
 import { BIOMES, BASE_DEPTH, TIER_NAMES, formatDepth, levelFor } from '../engine.js';
 import { CONTENT_META, QUESTIONS } from '../data/content.js';
+import { bestTimedDepth } from '../storage.js';
 import Icon from './Icon.jsx';
+import './mode-picker.css';
 
 export const CATEGORY_LABELS = {
   all: 'All categories',
@@ -15,6 +16,9 @@ export const MODE_NAMES = {
   daily: 'Daily Seven',
   endless: 'Endless Abyss',
   practice: 'Practice',
+  common: 'Common Wins',
+  deep: 'Deep Cuts',
+  timebank: 'Time Bank',
 };
 
 export const categoryIcon = {
@@ -32,8 +36,26 @@ const modes = [
     details: '25s per question',
   },
   {
-    id: 'daily',
+    id: 'common',
+    icon: 'trophy',
+    description: 'Familiar answers score most.',
+    details: '800 m base for Common',
+  },
+  {
+    id: 'deep',
+    icon: 'map',
+    description: 'Champion abilities, tricky recipes, and Rift mechanics.',
+    details: '7 niche questions',
+  },
+  {
+    id: 'timebank',
     icon: 'clock',
+    description: 'Share one timer across seven questions.',
+    details: '60s total',
+  },
+  {
+    id: 'daily',
+    icon: 'flag',
     description: 'A shared set of seven questions, refreshed daily.',
     details: 'All categories',
   },
@@ -48,6 +70,13 @@ const modes = [
     icon: 'book',
     description: 'Take your time with the full question bank.',
     details: '7 questions · no timer',
+  },
+  {
+    id: 'mystery',
+    title: 'Mystery Dive',
+    icon: 'spark',
+    description: 'Play one of six modes at random.',
+    details: 'Keeps your category',
   },
 ];
 
@@ -83,9 +112,16 @@ export function RarityLegend() {
   );
 }
 
-export default function Home({ profile, onPlay, onCodex, onJournal, challenge, onDismissChallenge }) {
-  const [category, setCategory] = useState('all');
-  const best = Math.max(profile.bests.classic || 0, profile.bests.endless || 0, profile.bests.daily || 0);
+export default function Home({
+  profile,
+  category,
+  onCategoryChange,
+  onPlay,
+  onJournal,
+  challenge,
+  onDismissChallenge,
+}) {
+  const best = bestTimedDepth(profile);
   const stats = [
     ['trophy', 'Personal best', formatDepth(best)],
     ['compass', 'Expeditions', profile.runs],
@@ -116,42 +152,47 @@ export default function Home({ profile, onPlay, onCodex, onJournal, challenge, o
           <p className="eyebrow">League of Legends trivia</p>
           <h1 id="hero-title">How deep can<br /><em>you dive?</em></h1>
           <p className="hero-description">
-            Name champions, items, and Rift objectives. Rarer answers take you deeper.
+            Answer questions about champions, items, and Rift objectives.
           </p>
           <div className="hero-actions">
             <button className="button button-primary" onClick={() => onPlay('classic', { category })}>
               Let's dive in <Icon name="arrow" />
             </button>
-            <button className="button button-quiet" onClick={onCodex}>
-              <Icon name="book" size={18} /> Explore the Codex
-            </button>
+            <a className="button button-quiet" href="#choose-dive">
+              Browse modes <Icon name="down" size={18} />
+            </a>
           </div>
-          <div className="hero-metrics" aria-label="Classic Dive rules">
-            <div><b>7</b><span>questions per dive</span></div>
-            <div><b>25<small>s</small></b><span>per question</span></div>
-            <div><b>5</b><span>rarity tiers</span></div>
+          <div className="hero-metrics">
+            <div><b>{QUESTIONS.length}</b><span>questions</span></div>
+            <div><b>{Object.keys(MODE_NAMES).length}</b><span>game modes</span></div>
           </div>
         </div>
       </section>
 
-      <section className="expedition-select" aria-labelledby="modes-title">
+      <section className="expedition-select" id="choose-dive" tabIndex={-1} aria-labelledby="modes-title">
         <div className="section-heading">
           <h2 id="modes-title">Choose your dive</h2>
-          <CategoryPicker value={category} onChange={setCategory} />
         </div>
-        <div className="mode-grid">
-          {modes.map(({ id, icon, description, details }) => (
+        <div className="mode-category-bar">
+          <div className="mode-category-copy">
+            <p>Question category</p>
+            <span>Daily Seven always uses all categories.</span>
+          </div>
+          <CategoryPicker value={category} onChange={onCategoryChange} />
+        </div>
+        <div className="mode-grid home-mode-grid">
+          {modes.map(({ id, title = MODE_NAMES[id], icon, description, details }) => (
             <button
               className={`mode-card mode-${id}`}
               key={id}
               aria-labelledby={`mode-${id}-title`}
               aria-describedby={`mode-${id}-description mode-${id}-details`}
-              onClick={() => onPlay(id, { category })}
+              onClick={() => onPlay(id, id === 'daily' ? undefined : { category })}
             >
               <span className="mode-card-top">
-                <span className="mode-icon"><Icon name={icon} size={24} /></span>
+                <span className="mode-icon"><Icon name={icon} size={22} /></span>
+                <span className="mode-title" id={`mode-${id}-title`}>{title}</span>
               </span>
-              <span className="mode-title" id={`mode-${id}-title`}>{MODE_NAMES[id]}</span>
               <span className="mode-description" id={`mode-${id}-description`}>{description}</span>
               <span className="mode-card-bottom">
                 <span id={`mode-${id}-details`}>{details}</span>
@@ -165,7 +206,7 @@ export default function Home({ profile, onPlay, onCodex, onJournal, challenge, o
       <section className="rarity-panel" aria-labelledby="rarity-title">
         <div>
           <Icon name="spark" />
-          <h3 id="rarity-title">Depth by rarity</h3>
+          <h3 id="rarity-title">Standard depth by rarity</h3>
         </div>
         <RarityLegend />
       </section>
