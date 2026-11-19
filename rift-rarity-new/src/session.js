@@ -91,40 +91,27 @@ export function settle(game, value = "", options = {}) {
         kind: "clock",
         message:
           "Timing changed. Please return to shore and start a fresh dive.",
-        candidates: [],
       },
     };
   const input = String(value ?? "")
     .trim()
     .slice(0, 80);
-  const resolved =
-    expired || !input ? null : resolveInput(input, question.category);
-  if (resolved && resolved.status !== "matched") {
+  const resolved = expired || !input
+    ? null
+    : resolveInput(input, question.category, CATALOG, { allowApproximate: false });
+  const entity = resolved?.entity || null;
+  const correct = Boolean(entity && question.answerIds.includes(entity.id));
+  if (!expired && input && !correct) {
     return {
       ...game,
       lastNow: now,
-      notice: {
-        kind: resolved.status,
-        message:
-          resolved.status === "ambiguous"
-            ? "A few names match. Pick the one you meant below."
-            : `We couldn’t recognise “${input}”. Try its full name or choose from name assist. Your turn is still open.`,
-        candidates: resolved.candidates,
-      },
+      notice: { kind: "retry", message: "Try again" },
     };
   }
-  const entity = resolved?.entity || null;
-  const correct = Boolean(entity && question.answerIds.includes(entity.id));
   const streak = correct ? game.streak + 1 : 0;
   const score = correct ? award(entity, streak) : null;
   const depth = game.depth + (score?.depth || 0);
-  const kind = correct
-    ? "correct"
-    : expired
-      ? "timeout"
-      : !input
-        ? "skipped"
-        : "incorrect";
+  const kind = correct ? "correct" : expired ? "timeout" : "skipped";
   const explanation =
     question.explanation ||
     question.rule ||
@@ -134,11 +121,9 @@ export function settle(game, value = "", options = {}) {
     detail = `${resolved.corrected ? `Recognised as ${entity.name}. ` : ""}${score.base} m base × ${score.multiplier.toFixed(1)} streak bonus. ${explanation}`;
   else if (expired)
     detail = "Time is up. Your existing depth is safe; the streak resets.";
-  else if (!input)
+  else
     detail =
       "Question skipped. Your existing depth is safe; the streak resets.";
-  else
-    detail = `${entity.name} is recognised, but doesn’t meet this question’s rule. ${explanation}`;
   const last = {
     questionId: question.id,
     question: question.prompt,
@@ -148,7 +133,7 @@ export function settle(game, value = "", options = {}) {
     answer: entity?.name || input || "—",
     rarity:
       score?.tierName ||
-      (expired ? "Time expired" : !input ? "Skipped" : "Not a match"),
+      (expired ? "Time expired" : "Skipped"),
     gain: score?.depth || 0,
     tier: score?.tier || 0,
     detail,

@@ -33,38 +33,39 @@ test('unknown spelling does not consume question, depth, life, streak or time', 
   const game = { ...make('endless'), streak: 3, depth: 650 };
   const result = settle(game, 'zzzzzzzzzzzz', { now: 2000 });
   assert.equal(result.status, 'answering');
-  assert.equal(result.notice.kind, 'unknown');
+  assert.equal(result.notice.message, 'Try again');
   for (const key of ['deadline', 'depth', 'lives', 'streak', 'index']) assert.equal(result[key], game[key]);
   assert.equal(result.log.length, 0);
   assert.equal(settle(result, valid(game), { now: 2200 }).correct, 1);
 });
-test('ambiguous item prefix asks for identity without consuming the turn', () => {
+test('a partial item name shows only the retry message', () => {
   const game = make('classic', { category: 'items' });
   const result = settle(game, 'dora', { now: 2000 });
   assert.equal(result.status, 'answering');
-  assert.equal(result.notice.kind, 'ambiguous');
-  assert.ok(result.notice.candidates.length > 1);
+  assert.deepEqual(result.notice, { kind: 'retry', message: 'Try again' });
   assert.equal(result.log.length, 0);
   assert.equal(result.deadline, game.deadline);
 });
-test('known but ineligible identity is explained and cannot be typo-swapped into a valid answer', () => {
+test('a known but ineligible name keeps the turn open for a correct answer', () => {
   const question = QUESTIONS.find(q => q.category === 'champions' && q.answerIds.length < 100);
   const original = make();
   const game = { ...original, questions: [question, ...original.questions.slice(1)] };
   const other = CATALOG.find(e => e.category === question.category && !question.answerIds.includes(e.id));
   assert.ok(other);
   const result = settle(game, other.name, { now: 1200 });
-  assert.equal(result.status, 'revealing');
+  assert.equal(result.status, 'answering');
   assert.equal(result.correct, 0);
-  assert.equal(result.last.entityId, other.id);
-  assert.match(result.last.detail, /recognised/);
-  assert.ok(result.last.examples.length);
+  assert.equal(result.notice.message, 'Try again');
+  assert.equal(result.last, null);
+  assert.equal(result.log.length, 0);
+  assert.equal(settle(result, valid(game), { now: 1300 }).correct, 1);
 });
-test('a real entity in the wrong category is recognized but not rewarded', () => {
+test('an entity in the wrong category can be retried', () => {
   const game = make('classic', { category: 'items' });
   const result = settle(game, 'Veigar', { now: 1500 });
-  assert.equal(result.last.kind, 'incorrect');
-  assert.equal(result.last.answer, 'Veigar');
+  assert.equal(result.status, 'answering');
+  assert.equal(result.notice.message, 'Try again');
+  assert.equal(result.depth, 0);
 });
 test('submission at or after deadline is timeout even when the UI has not ticked', () => {
   for (const delta of [0, 1, 300]) {

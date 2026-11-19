@@ -162,7 +162,12 @@ const matched = (entity, corrected, method) => ({
 });
 
 /** Resolve identity first. Eligibility belongs to the question, never to spelling correction. */
-export function resolveInput(input, category = "all", catalog = CATALOG) {
+export function resolveInput(
+  input,
+  category = "all",
+  catalog = CATALOG,
+  { allowApproximate = true } = {},
+) {
   const key = norm(input);
   if (!key || key.length > 80) return unresolved("unknown");
   const { exact, aliases } = indexFor(catalog);
@@ -181,7 +186,7 @@ export function resolveInput(input, category = "all", catalog = CATALOG) {
     if (found?.length > 1) return unresolved("ambiguous", [...found]);
   }
   // Short guesses such as V, Vi and Jax are only recognised by exact identity/alias.
-  if (key.length < 4) return unresolved("unknown");
+  if (!allowApproximate || key.length < 4) return unresolved("unknown");
   const pool = catalog.filter(
     (e) => category === "all" || e.category === category,
   );
@@ -228,35 +233,21 @@ export function suggestions(
   limit = 6,
 ) {
   const key = norm(input);
-  if (key.length < 2) return [];
-  const ranked = catalog
-    .filter((e) => category === "all" || e.category === category)
+  if (key.length < 3 || key.length > 80 || indexFor(catalog).exact.has(key)) {
+    return [];
+  }
+  const maxDistance = key.length >= 8 ? 2 : 1;
+  return catalog
+    .filter((entity) => category === "all" || entity.category === category)
     .map((entity) => {
       const name = norm(entity.name);
-      const alias = (entity.aliases || []).map(norm);
-      const rank =
-        name === key
-          ? 0
-          : alias.includes(key)
-            ? 1
-            : name.startsWith(key)
-              ? 2
-              : alias.some((a) => a.startsWith(key))
-                ? 3
-                : name.includes(key)
-                  ? 4
-                  : Infinity;
-      return { entity, rank };
+      const distance = name.length < 3 ? Infinity : editDistance(key, name, maxDistance);
+      return { entity, distance };
     })
-    .filter((x) => Number.isFinite(x.rank))
-    .sort(
-      (a, b) => a.rank - b.rank || a.entity.name.localeCompare(b.entity.name),
-    );
-  if (ranked.length) return ranked.slice(0, limit).map((x) => x.entity);
-  const result = resolveInput(input, category, catalog);
-  return result.status === "matched"
-    ? [result.entity]
-    : result.candidates.slice(0, limit);
+    .filter(({ distance }) => distance <= maxDistance)
+    .sort((a, b) => a.distance - b.distance || a.entity.name.localeCompare(b.entity.name))
+    .slice(0, limit)
+    .map(({ entity }) => entity);
 }
 
 /** Rarity is an editorial knowledge score, not a claim about live player pick rates. */

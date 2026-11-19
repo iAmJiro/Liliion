@@ -69,10 +69,13 @@ test('exact canonical names outrank another entity’s alias', () => {
   const pool = [{ id: 'a', name: 'Vi', category: 'champions', aliases: [] }, { id: 'b', name: 'Viego', category: 'champions', aliases: ['vi'] }];
   assert.equal(resolveInput('Vi', 'champions', pool).entity.id, 'a');
 });
-test('name assist searches category identities rather than current eligible answers', () => {
-  assert.deepEqual(suggestions('ve', 'champions', fake).map(e => e.name), ['Veigar', 'Vex']);
-  assert.deepEqual(suggestions('ve', 'items', fake), []);
-  assert.deepEqual(suggestions('i', 'items', fake), []);
+test('spelling assist only suggests close names in the category', () => {
+  assert.deepEqual(suggestions('ve', 'champions', fake), []);
+  assert.deepEqual(suggestions('aure', 'champions', fake), []);
+  assert.deepEqual(suggestions('Veigar', 'champions', fake), []);
+  assert.deepEqual(suggestions('vegiar', 'items', fake), []);
+  assert.deepEqual(suggestions('zzzzqqqq', 'champions', fake), []);
+  assert.equal(suggestions('vegiar', 'champions', fake)[0].name, 'Veigar');
   assert.equal(suggestions('veegar', 'champions', fake)[0].name, 'Veigar');
 });
 test('every canonical catalogue name resolves to itself, without eligibility bias', () => {

@@ -158,32 +158,41 @@ test('React home, navigation, Codex search and help dialog mount correctly', asy
   assert.equal(document.querySelector('dialog'), null);
 });
 
-test('Unrecognised names keep the turn open; Veegar resolves and scores in the rendered game', async () => {
+test('Unknown guesses show Try again, and a spelling suggestion can be selected', async () => {
   const veigar = CATALOG.find(e => e.name === 'Veigar');
   await startChallenge(findSeed(q => q.answerIds.includes(veigar.id)));
   const beforePrompt = byTestId('question-prompt').textContent;
   await submit('zzzzqqqqnotachampion');
-  assert.ok(byTestId('answer-notice'));
+  assert.equal(byTestId('answer-notice').textContent.trim(), 'Try again');
   assert.equal(byTestId('question-prompt').textContent, beforePrompt);
   assert.ok(byTestId('answer-input'));
   assert.equal(byTestId('next-question'), null);
   assert.equal(byTestId('depth-value').textContent, '0m');
-  await submit('veegar');
+  await input('vegiar');
+  assert.ok(document.querySelector('[role="option"]').textContent.includes('Veigar'));
+  await click(byTestId('answer-submit'));
+  assert.equal(byTestId('answer-notice').textContent.trim(), 'Try again');
+  await input('Veigra');
+  await act(async () => document.querySelector('[role="option"]').dispatchEvent(
+    new dom.window.MouseEvent('pointerdown', { bubbles: true, cancelable: true }),
+  ));
+  assert.equal(byTestId('answer-input').value, 'Veigar');
+  await click(byTestId('answer-submit'));
   assert.match(document.querySelector('.answer-reveal.success').textContent, /Veigar/);
   assert.equal(byTestId('answer-input'), null);
   assert.equal(document.activeElement, byTestId('next-question'), 'Keyboard focus moves to Continue');
   assert.notEqual(byTestId('depth-value').textContent, '0m');
 });
 
-test('Recognised ineligible identities receive explanation rather than a false spelling match', async () => {
+test('Recognised wrong answers show Try again without revealing answers', async () => {
   await startChallenge(findSeed(q => q.answerIds.length < 100));
   const question = currentQuestion();
   const wrong = CATALOG.find(e => e.category === 'champions' && !question.answerIds.includes(e.id));
   await submit(wrong.name);
-  const result = document.querySelector('.answer-reveal.miss');
-  assert.ok(result);
-  assert.ok(result.textContent.includes(wrong.name));
-  assert.match(result.textContent, /recognised, but doesn’t meet/);
+  assert.equal(byTestId('answer-notice').textContent.trim(), 'Try again');
+  assert.equal(document.querySelector('.answer-reveal'), null);
+  assert.ok(byTestId('answer-input'));
+  assert.equal(byTestId('next-question'), null);
   assert.equal(byTestId('depth-value').textContent, '0m');
 });
 
@@ -215,7 +224,9 @@ test('Category selection, untimed Practice and keyboard nickname assist work tog
   now += 60_000;
   await act(async () => { for (const callback of [...intervals.values()]) callback(); });
   assert.ok(byTestId('answer-input'), 'Practice remains active after a minute');
-  await input('Veeg');
+  await input('Veig');
+  assert.equal(document.querySelector('[role="listbox"]'), null);
+  await input('Veiagr');
   await act(async () => {
     byTestId('answer-input').dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
   });
@@ -275,9 +286,9 @@ test('ArrowUp begins at the last name suggestion; pointer selection keeps the fi
   await mount();
   await click('Champions');
   await click(/NO PRESSURE.*Practice|Practice.*NO PRESSURE/);
-  await input('ka');
+  await input('son');
   const options = [...document.querySelectorAll('[role="option"]')];
-  assert.ok(options.length > 2);
+  assert.ok(options.length > 1);
   await act(async () => byTestId('answer-input').dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true })));
   assert.equal(document.querySelector('[role="option"][aria-selected="true"]').id, options.at(-1).id);
   const chosen = options[0].querySelector('span:nth-child(2)').textContent;
