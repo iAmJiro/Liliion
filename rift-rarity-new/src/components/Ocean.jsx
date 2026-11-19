@@ -16,20 +16,41 @@ export function Riftling({className=''}) {
   </svg>;
 }
 
-export default function Ocean({depth=0,gain=0,eventKey=0,hero=false}) {
-  const biome=biomeFor(depth), next=BIOMES.find(b=>b.min>depth);
-  const [diving,setDiving]=useState(false);
-  useEffect(()=>{if(!gain){setDiving(false);return;}setDiving(true);const id=setTimeout(()=>setDiving(false),1300);return()=>clearTimeout(id);},[eventKey,gain]);
-  const range=next?next.min-biome.min:2000;
-  const percent=Math.min(100,Math.max(0,(depth-biome.min)/range*100));
-  return <div className={`ocean-scene ${hero?'ocean-hero':''} ${diving?'is-diving':''}`} data-biome={biome.key}>
-    <div className="ocean-grain"/><div className="light-beam beam-one"/><div className="light-beam beam-two"/>
-    <svg className="ocean-landscape" aria-hidden="true" viewBox="0 0 650 660" preserveAspectRatio="xMidYMax slice"><g fill="#103e4e" opacity=".65"><path d="M0 660V399l58-21 27 69 54-20 21 233Z"/><path d="M650 660V320l-56 37-20 98-46-14-22 219Z"/><path d="M177 662V490h39v-35h81v27h30v180Zm25-104h30v-47h-30Zm52 0h34v-47h-34Z"/></g><path d="M0 660v-99q67-73 160 13t160 9 176-32 154-31v140Z" fill="#0a293b"/><g stroke="#245a60" strokeWidth="9" strokeLinecap="round" fill="none"><path d="M50 626c-29-35 20-57-4-89m0 49-19-20m21 1 19-22M573 627c18-39-10-53 12-100m-4 34 23-23m-25 47-21-25"/></g><g fill="#76d5cf" opacity=".45"><path d="m95 250 12-5-3 5 3 5-12-5Zm35 14 16-5-3 5 3 5-16-5Zm319 99 16-6-4 6 4 6-16-6Zm-27 14 12-4-2 4 2 4-12-4Z"/></g></svg>
-    <div className="sea-dust" aria-hidden="true">{Array.from({length:18},(_,i)=><span key={i} style={{'--x':`${(i*43+13)%100}%`,'--delay':`${-(i*1.7)}s`,'--duration':`${9+i%7}s`,'--size':`${2+i%3}px`}}/>)}</div>
-    <div className="ocean-top"><span className="live-dot"/>{hero?'YOUR NEXT ADVENTURE':biome.name.replaceAll('_',' ')}<span className="coordinates">RFT / 07</span></div>
-    <div className="depth-ruler" aria-hidden="true">{[0,1,2,3,4].map((i)=><span key={i}><i/>{(biome.min+i*250).toLocaleString()}</span>)}</div>
-    <div className="riftling-position"><Riftling/>{hero&&<div className="creature-caption"><span>MEET YOUR DIVE BUDDY</span><b>Little creature. Big curiosity.</b></div>}</div>
-    {diving&&<div className="depth-popup" key={eventKey}>+{gain.toLocaleString()} m<Icon name="down" size={24}/></div>}
-    {hero?<><div className="scene-sticker"><Icon name="gem" size={18}/><div><small>MYTHIC KNOWLEDGE</small><b>Discover the unexpected</b></div></div><div className="scene-caption"><span>01 — SUNLIT SHOALS</span><Icon name="waves" size={22}/></div></>:<div className="depth-card"><div><p>EXPEDITION DEPTH</p><strong data-testid="depth-value" aria-live="polite">{depth.toLocaleString()}<small>m</small></strong></div><div className="milestone-caption"><span>{next?`Next: ${next.name.toLowerCase()}`:'The deep is yours'}</span><span>{next?formatDepth(next.min):'∞'}</span></div><div className="milestone-track"><i style={{width:`${percent}%`}}/></div></div>}
-  </div>;
+export default function Ocean({ depth = 0, gain = 0, eventKey = 0 }) {
+  const biome = biomeFor(depth);
+  const next = BIOMES.find((entry) => entry.min > depth);
+  const [diving, setDiving] = useState(false);
+
+  useEffect(() => {
+    if (!gain) {
+      setDiving(false);
+      return;
+    }
+    setDiving(true);
+    const timer = setTimeout(() => setDiving(false), 1300);
+    return () => clearTimeout(timer);
+  }, [eventKey, gain]);
+
+  const percent = next ? (depth - biome.min) / (next.min - biome.min) * 100 : 100;
+
+  return (
+    <div className={`ocean-scene${diving ? ' is-diving' : ''}`} data-biome={biome.key}>
+      <div className="ocean-top"><span className="live-dot" />{biome.name}</div>
+      <div className="riftling-position"><Riftling /></div>
+      {diving && (
+        <div className="depth-popup" key={eventKey} aria-hidden="true">
+          +{formatDepth(gain)} <Icon name="down" size={19} />
+        </div>
+      )}
+      <div className="depth-card">
+        <p>Expedition depth</p>
+        <strong aria-live="polite" data-testid="depth-value">{depth.toLocaleString()}<small>m</small></strong>
+        <div className="milestone-caption">
+          <span>{next ? `Next: ${next.name.toLowerCase()}` : 'Deepest biome reached'}</span>
+          {next && <span>{formatDepth(next.min)}</span>}
+        </div>
+        <div className="milestone-track" aria-hidden="true"><i style={{ width: `${percent}%` }} /></div>
+      </div>
+    </div>
+  );
 }

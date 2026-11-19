@@ -1,41 +1,335 @@
-import {useEffect,useMemo,useRef,useState} from 'react';
-import {suggestions,comboMultiplier} from '../engine.js';
-import {CATALOG} from '../data/content.js';
-import {MODE_NAMES,categoryIcon} from './Home.jsx';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { comboMultiplier, suggestions } from '../engine.js';
+import { CATALOG } from '../data/content.js';
+import { CATEGORY_LABELS, MODE_NAMES, categoryIcon } from './Home.jsx';
 import Ocean from './Ocean.jsx';
 import Icon from './Icon.jsx';
-import {Avatar} from './Knowledge.jsx';
+import { Avatar } from './Knowledge.jsx';
 
-export default function Game({game,onAnswer,onSkip,onNext,onLeave,onSurface}) {
-  const [input,setInput]=useState(''),[now,setNow]=useState(()=>performance.now()),[listOpen,setListOpen]=useState(false),[active,setActive]=useState(-1);
-  const inputRef=useRef(null),nextRef=useRef(null);
-  const question=game.questions[game.index],answering=game.status==='answering';
-  const options=useMemo(()=>suggestions(input,question.category,CATALOG,5),[input,question.category]);
-  const remaining=game.deadline==null?null:Math.max(0,game.deadline-now);
-  useEffect(()=>{setInput('');setActive(-1);setListOpen(false);setNow(performance.now());if(!window.matchMedia||window.matchMedia('(pointer: fine)').matches)inputRef.current?.focus({preventScroll:true});},[game.index]);
-  useEffect(()=>{if(!answering||game.deadline==null)return;const tick=()=>{const time=performance.now();setNow(time);if(time>=game.deadline)onAnswer('',true);};tick();const id=setInterval(tick,100);return()=>clearInterval(id);},[game.deadline,answering,onAnswer]);
-  useEffect(()=>{if(game.status==='revealing')nextRef.current?.focus({preventScroll:true});},[game.status]);
-  useEffect(()=>{if(game.notice?.kind==='retry')inputRef.current?.focus({preventScroll:true});},[game.notice]);
-  function pick(entity){setInput(entity.name);setListOpen(false);setActive(-1);inputRef.current?.focus();}
-  function keyDown(e){if(e.key==='Escape'){setListOpen(false);setActive(-1);}if(e.key==='ArrowDown'&&options.length){e.preventDefault();setListOpen(true);setActive(i=>(i+1)%options.length);}if(e.key==='ArrowUp'&&options.length){e.preventDefault();setListOpen(true);setActive(i=>i<0?options.length-1:(i-1+options.length)%options.length);}if(e.key==='Enter'&&listOpen&&active>=0&&options[active]){e.preventDefault();pick(options[active]);}}
-  function submit(e){e.preventDefault();if(!input.trim())return;setListOpen(false);setActive(-1);onAnswer(input.trim());}
-  const finishedNext=(game.mode==='endless'&&game.lives<=0)||(game.mode!=='endless'&&game.index+1===game.questions.length);
-  const last=game.last;
-  const dotStart=game.mode==='endless'?Math.max(0,game.index-11):0;
-  return <section className="screen game-screen" id="game-screen">
-    <div className="game-toolbar"><button className="text-button" onClick={onLeave}><Icon name="back" size={16}/>Leave expedition</button><span className="mode-label"><span className="live-dot"/>{MODE_NAMES[game.mode]}</span><span className="keyboard-tip">ENTER TO SUBMIT</span></div>
-    <div className="game-layout"><aside className="expedition-panel" aria-label="Dive progress"><Ocean depth={game.depth} gain={last?.gain||0} eventKey={game.log.length}/><div className="dive-stats"><div><Icon name="spark" size={17}/><b>×{comboMultiplier(game.streak).toFixed(1)}</b><span>combo</span></div><div><Icon name="check" size={17}/><b>{game.correct}</b><span>correct</span></div><div><Icon name={game.mode==='endless'?'heart':'compass'} size={17}/><b>{game.mode==='endless'?game.lives:game.index+1}</b><span>{game.mode==='endless'?'lives':'of 7'}</span></div></div>{game.mode==='endless'&&<button className="button surface-button" onClick={onSurface}>Surface & save this run<Icon name="flag" size={16}/></button>}<p className="dive-tip"><Icon name="info" size={15}/>A correct answer grows your streak. Five in a row earns a ×1.4 depth multiplier.</p></aside>
-    <div className="question-panel"><div className="question-heading"><span className="category-badge"><Icon name={categoryIcon[question.category]} size={15}/>{question.category==='map'?'THE RIFT':question.category.toUpperCase()}</span><span data-testid="question-number">{String(game.index+1).padStart(2,'0')} <i>/ {game.mode==='endless'?'∞':'07'}</i></span></div>
-      <div className="question-dots" aria-label={`Question ${game.index+1}${game.mode==='endless'?'':' of 7'}`}>{Array.from({length:game.mode==='endless'?Math.min(game.index+1,12):7},(_,slot)=>{const i=dotStart+slot;return <i key={i} className={i<game.log.length?(game.log[i]?.correct?'completed':'missed'):i===game.index?'current':''}/>;})}</div>
-      <div className="question-content"><p className="eyebrow">TRUST YOUR RIFT KNOWLEDGE</p><h1 data-testid="question-prompt">{question.prompt}</h1><p className="question-rule">{question.rule||question.hint}</p></div>
-      {answering?<><div className={`timer-section ${remaining!==null&&remaining<=5000?'urgent':''}`}><div><span><Icon name={remaining===null?'book':'clock'} size={15}/>{remaining===null?'NO RUSH — PRACTICE MODE':'TIME REMAINING'}</span><strong aria-label={remaining===null?'No time limit':`${Math.ceil(remaining/1000)} seconds remaining`}>{remaining===null?'∞':`${Math.ceil(remaining/1000)}s`}</strong></div>{remaining!==null&&<div className="timer-track" role="progressbar" aria-label="Time remaining" aria-valuemin={0} aria-valuemax={25} aria-valuenow={Math.ceil(remaining/1000)}><i style={{width:`${Math.max(0,remaining/(game.durationMs||25000)*100)}%`}}/></div>}</div>
-      <form className="answer-form" onSubmit={submit}><label htmlFor="answer-input">YOUR ANSWER<span>One name is all it takes.</span></label><div className="answer-field"><Icon name="search" size={20}/><input ref={inputRef} id="answer-input" data-testid="answer-input" type="text" value={input} onChange={e=>{setInput(e.target.value);setActive(-1);setListOpen(true);}} onKeyDown={keyDown} onBlur={()=>setListOpen(false)} placeholder={question.category==='champions'?'Try a champion name…':question.category==='items'?'Try an item name…':'Try an objective or map feature…'} maxLength={90} autoComplete="off" spellCheck={false} autoCapitalize="off" role="combobox" aria-autocomplete="list" aria-controls="name-suggestions" aria-expanded={listOpen&&options.length>0} aria-activedescendant={listOpen&&options[active]?`suggestion-${active}`:undefined} aria-describedby="answer-help"/><kbd>↵</kbd></div>
-      {listOpen&&options.length>0&&<div className="suggestion-dropdown" id="name-suggestions" role="listbox" aria-label="Spelling suggestions"><div className="suggestion-label">CLOSE SPELLINGS</div>{options.map((entity,i)=><div role="option" aria-selected={i===active} id={`suggestion-${i}`} className={`suggestion-option ${active===i?'active':''}`} key={entity.id} onPointerDown={e=>{e.preventDefault();pick(entity);}}><Avatar entity={entity} small/><span>{entity.name}</span><small>{entity.category==='map'?'The Rift':entity.category}</small></div>)}</div>}
-      <div className="answer-help" id="answer-help"><Icon name="spark" size={14}/><span>Nicknames are accepted. Pick a close spelling to correct a typo.</span></div>
-      {game.notice&&<div className="answer-notice" data-testid="answer-notice" role="status"><Icon name="info" size={17}/>{game.notice.message}</div>}
-      <button className="button button-primary answer-submit" data-testid="answer-submit" type="submit" disabled={!input.trim()}>Lock it in & dive<Icon name="down"/></button></form><div className="answer-bottom"><button className="text-button" onClick={onSkip}>Skip question<Icon name="arrow" size={15}/></button><span>No spelling penalty. The clock keeps running.</span></div></>:
-      <div className={`answer-reveal ${last?.correct?'success':'miss'} tier-${last?.tier||0}`} role="status" aria-live="polite"><div className="reveal-label"><Icon name={last?.correct?'spark':'info'} size={18}/>{last?.correct?`${last.rarity} discovery`:last?.rarity||'Keep exploring'}</div><h2>{last?.correct?last.answer:last?.rarity==='Time expired'?'Time to resurface.':'Not this time.'}</h2>{last?.correct&&<div className="reveal-depth">+{last.gain.toLocaleString()}<span>metres</span></div>}<p>{last?.detail}</p>{!last?.correct&&<p className="submitted-answer">Your answer: <b>{last?.answer||'—'}</b></p>}{last?.examples?.length>0&&<div className="example-answers"><span>{last.correct?'OTHER DISCOVERIES':'ANSWERS THAT FIT'}</span><div>{last.examples.slice(0,4).map((e,i)=><span key={e.id||i}>{typeof e==='string'?e:e.name}</span>)}</div></div>}<button ref={nextRef} className="button button-primary" data-testid="next-question" onClick={onNext}>{finishedNext?'See expedition results':'Continue the descent'}<Icon name="arrow"/></button></div>}
-    </div></div>
-    <div className="play-footer"><span>Correct names are checked against the question's rule.</span><span>Common 100 m · Uncommon 200 m · Rare 350 m · Epic 550 m · Mythic 800 m</span></div>
-  </section>;
+const placeholders = {
+  champions: 'Enter a champion name',
+  items: 'Enter an item name',
+  map: 'Enter an objective or map feature',
+};
+
+function QuestionTimer({ remaining, durationMs }) {
+  if (remaining === null) {
+    return (
+      <div className="timer-section">
+        <span className="timer-readout" aria-label="No time limit">
+          <Icon name="book" size={16} />
+          <strong>No timer</strong>
+        </span>
+      </div>
+    );
+  }
+
+  const seconds = Math.ceil(remaining / 1000);
+  const percent = Math.min(100, (remaining / durationMs) * 100);
+
+  return (
+    <div className={`timer-section ${remaining <= 5000 ? 'urgent' : ''}`}>
+      <span className="timer-readout" role="timer">
+        <Icon name="clock" size={16} />
+        <strong>{seconds}s</strong>
+        <span className="sr-only"> remaining</span>
+      </span>
+      <div className="timer-track" aria-hidden="true">
+        <i style={{ width: `${percent}%` }} />
+      </div>
+    </div>
+  );
+}
+
+export default function Game({ game, onAnswer, onSkip, onNext, onLeave, onSurface }) {
+  const [input, setInput] = useState('');
+  const [now, setNow] = useState(() => performance.now());
+  const [listOpen, setListOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const [dismissedNotice, setDismissedNotice] = useState(null);
+  const inputRef = useRef(null);
+  const nextRef = useRef(null);
+  const composing = useRef(false);
+  const question = game.questions[game.index];
+  const answering = game.status === 'answering';
+  const endless = game.mode === 'endless';
+  const options = useMemo(
+    () => suggestions(input, question.category, CATALOG, 5),
+    [input, question.category],
+  );
+  const showSuggestions = listOpen && options.length > 0;
+  const notice = game.notice === dismissedNotice ? null : game.notice;
+  const remaining = game.deadline === null ? null : Math.max(0, game.deadline - now);
+  const questionCount = game.questions.length;
+  const finishedNext = endless ? game.lives <= 0 : game.index + 1 === questionCount;
+  const last = game.last;
+  const dotStart = endless ? Math.max(0, game.index - 11) : 0;
+  const dotCount = endless ? Math.min(game.index + 1, 12) : questionCount;
+
+  useEffect(() => {
+    setInput('');
+    setActive(-1);
+    setListOpen(false);
+    setDismissedNotice(null);
+    setNow(performance.now());
+
+    if (!window.matchMedia || window.matchMedia('(pointer: fine)').matches) {
+      inputRef.current?.focus({ preventScroll: true });
+    }
+  }, [game.index]);
+
+  useEffect(() => {
+    if (!answering || game.deadline === null) return;
+
+    function tick() {
+      const time = performance.now();
+      setNow(time);
+      if (time >= game.deadline) onAnswer('', true);
+    }
+
+    tick();
+    const id = setInterval(tick, 100);
+    return () => clearInterval(id);
+  }, [game.deadline, answering, onAnswer]);
+
+  useEffect(() => {
+    if (game.status === 'revealing') nextRef.current?.focus({ preventScroll: true });
+  }, [game.status]);
+
+  useEffect(() => {
+    if (game.notice?.kind === 'retry') inputRef.current?.focus({ preventScroll: true });
+  }, [game.notice]);
+
+  function editAnswer(value, open) {
+    setInput(value);
+    setActive(-1);
+    setListOpen(open);
+    if (game.notice?.kind === 'retry') setDismissedNotice(game.notice);
+  }
+
+  function pick(entity) {
+    editAnswer(entity.name, false);
+    inputRef.current?.focus({ preventScroll: true });
+  }
+
+  function keyDown(event) {
+    if (composing.current || event.nativeEvent.isComposing || event.keyCode === 229) return;
+
+    if (event.key === 'Escape') {
+      setListOpen(false);
+      setActive(-1);
+    } else if (event.key === 'ArrowDown' && options.length) {
+      event.preventDefault();
+      setListOpen(true);
+      setActive((index) => (index + 1) % options.length);
+    } else if (event.key === 'ArrowUp' && options.length) {
+      event.preventDefault();
+      setListOpen(true);
+      setActive((index) => (index < 0 ? options.length - 1 : (index - 1 + options.length) % options.length));
+    } else if (event.key === 'Enter' && showSuggestions && options[active]) {
+      event.preventDefault();
+      pick(options[active]);
+    }
+  }
+
+  function closeSuggestionsOnBlur(event) {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+    setListOpen(false);
+    setActive(-1);
+  }
+
+  function submit(event) {
+    event.preventDefault();
+    const answer = input.trim();
+    if (!answer || composing.current) return;
+
+    setListOpen(false);
+    setActive(-1);
+    onAnswer(answer);
+  }
+
+  return (
+    <section className="screen game-screen" id="game-screen">
+      <div className="game-toolbar">
+        <button className="text-button" onClick={onLeave}>
+          <Icon name="back" size={16} />
+          Leave expedition
+        </button>
+        <span className="mode-label">{MODE_NAMES[game.mode]}</span>
+      </div>
+
+      <div className="game-layout">
+        <div className="question-panel">
+          <div className="question-heading">
+            <span className="category-badge">
+              <Icon name={categoryIcon[question.category]} size={16} />
+              {CATEGORY_LABELS[question.category]}
+            </span>
+            {answering && <QuestionTimer remaining={remaining} durationMs={game.durationMs} />}
+            <span className="question-number">
+              <span className="sr-only">Question </span>
+              <span data-testid="question-number">
+                {String(game.index + 1).padStart(2, '0')}
+                <i> / {endless ? '∞' : String(questionCount).padStart(2, '0')}</i>
+              </span>
+            </span>
+          </div>
+
+          <div className="question-dots" aria-hidden="true">
+            {Array.from({ length: dotCount }, (_, slot) => {
+              const index = dotStart + slot;
+              const result = game.log[index];
+              const status = result ? (result.correct ? 'completed' : 'missed') : index === game.index ? 'current' : '';
+              return <i key={index} className={status} />;
+            })}
+          </div>
+
+          <div className="question-content">
+            <h1 data-testid="question-prompt">{question.prompt}</h1>
+            <p className="question-rule">{question.rule || question.hint}</p>
+          </div>
+
+          {answering ? (
+            <form className="answer-form" onSubmit={submit} onBlur={closeSuggestionsOnBlur}>
+              <label htmlFor="answer-input">Your answer</label>
+              <div className="answer-input-group">
+                <div className="answer-field">
+                  <Icon name="search" size={20} />
+                  <input
+                    ref={inputRef}
+                    id="answer-input"
+                    data-testid="answer-input"
+                    type="text"
+                    value={input}
+                    onChange={(event) => editAnswer(event.target.value, true)}
+                    onKeyDown={keyDown}
+                    onCompositionStart={() => { composing.current = true; }}
+                    onCompositionEnd={() => { composing.current = false; }}
+                    placeholder={placeholders[question.category]}
+                    maxLength={90}
+                    autoComplete="off"
+                    spellCheck={false}
+                    autoCapitalize="off"
+                    enterKeyHint="go"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-controls={showSuggestions ? 'name-suggestions' : undefined}
+                    aria-expanded={showSuggestions}
+                    aria-activedescendant={showSuggestions && options[active] ? `suggestion-${active}` : undefined}
+                    aria-describedby="answer-help"
+                    aria-invalid={notice?.kind === 'retry' || undefined}
+                  />
+                  <kbd aria-hidden="true">↵</kbd>
+                </div>
+                {showSuggestions && (
+                  <div className="suggestion-dropdown">
+                    <p className="suggestion-label">Close spellings</p>
+                    <div id="name-suggestions" role="listbox" aria-label="Spelling suggestions">
+                      {options.map((entity, index) => (
+                        <div
+                          key={entity.id}
+                          id={`suggestion-${index}`}
+                          role="option"
+                          aria-selected={index === active}
+                          className={`suggestion-option ${active === index ? 'active' : ''}`}
+                          onPointerDown={(event) => {
+                            event.preventDefault();
+                            pick(entity);
+                          }}
+                        >
+                          <Avatar entity={entity} small />
+                          <span>{entity.name}</span>
+                          <small>{CATEGORY_LABELS[entity.category]}</small>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <p className="answer-help" id="answer-help">Nicknames are accepted.</p>
+              <div role="status">
+                {notice && (
+                  <p className="answer-notice" data-testid="answer-notice">
+                    <Icon name="info" size={17} />
+                    {notice.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="answer-actions">
+                <button
+                  className="button button-primary answer-submit"
+                  data-testid="answer-submit"
+                  type="submit"
+                  disabled={!input.trim()}
+                >
+                  Submit answer <Icon name="down" />
+                </button>
+                <div className="answer-bottom">
+                  <button className="text-button" type="button" onClick={onSkip}>
+                    Skip question <Icon name="arrow" size={15} />
+                  </button>
+                </div>
+              </div>
+            </form>
+          ) : (
+            <div className={`answer-reveal ${last?.correct ? 'success' : 'miss'} tier-${last?.tier || 0}`} role="status">
+              <div className="reveal-label">
+                <Icon name={last?.correct ? 'spark' : 'info'} size={18} />
+                {last?.correct ? `${last.rarity} discovery` : last?.rarity}
+              </div>
+              <h2>{last?.correct ? last.answer : last?.kind === 'timeout' ? 'Time’s up.' : 'Question skipped.'}</h2>
+              {last?.correct && (
+                <div className="reveal-depth">
+                  +{last.gain.toLocaleString()} <span>metres</span>
+                </div>
+              )}
+              <p>{last?.detail}</p>
+              {last?.examples?.length > 0 && (
+                <div className="example-answers">
+                  <span>{last.correct ? 'Other discoveries' : 'Answers that fit'}</span>
+                  <div>
+                    {last.examples.slice(0, 4).map((entity, index) => (
+                      <span key={entity.id || index}>{typeof entity === 'string' ? entity : entity.name}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <button ref={nextRef} className="button button-primary" data-testid="next-question" onClick={onNext}>
+                {finishedNext ? 'See expedition results' : 'Continue the descent'} <Icon name="arrow" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        <aside className="expedition-panel" aria-label="Dive progress">
+          <Ocean depth={game.depth} gain={last?.gain || 0} eventKey={game.log.length} />
+          <div className="dive-stats" aria-label="Expedition stats">
+            <div>
+              <Icon name="spark" size={17} />
+              <b>×{comboMultiplier(game.streak).toFixed(1)}</b>
+              <span>combo</span>
+            </div>
+            <div>
+              <Icon name="check" size={17} />
+              <b>{game.correct}</b>
+              <span>correct</span>
+            </div>
+            {endless && (
+              <div>
+                <Icon name="heart" size={17} />
+                <b>{game.lives}</b>
+                <span>lives</span>
+              </div>
+            )}
+          </div>
+          {endless && (
+            <button className="button surface-button" onClick={onSurface}>
+              Surface &amp; save this run <Icon name="flag" size={16} />
+            </button>
+          )}
+        </aside>
+      </div>
+    </section>
+  );
 }

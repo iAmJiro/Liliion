@@ -76,6 +76,13 @@ try {
     await noOverflow(page);
     assert.ok(await page.getByRole('button', { name: /Let.s dive in/ }).isVisible());
     await page.screenshot({ path: path.join(output, 'home-desktop.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Codex', exact: true }).click();
+    const portrait = page.locator('.codex-entry').filter({ has: page.getByRole('heading', { name: 'Aatrox', exact: true }) }).locator('img');
+    await portrait.waitFor();
+    await portrait.evaluate(image => image.decode());
+    await page.screenshot({ path: path.join(output, 'codex-desktop.png') });
+    await page.getByRole('button', { name: 'Journal', exact: true }).click();
+    await page.screenshot({ path: path.join(output, 'journal-desktop.png'), fullPage: true });
     await ctx.close();
   });
   await check('Unknown spelling retries, Veegar works, seven answers complete and persist once', async () => {
@@ -89,6 +96,8 @@ try {
     assert.ok(await page.getByTestId('answer-input').isEnabled());
     assert.equal(await page.getByTestId('next-question').count(), 0);
     await page.getByTestId('answer-input').fill('veegar');
+    await page.getByRole('listbox', { name: 'Spelling suggestions' }).waitFor();
+    await page.screenshot({ path: path.join(output, 'suggestions-desktop.png') });
     await page.getByTestId('answer-submit').click();
     await page.getByTestId('next-question').waitFor();
     assert.match(await page.locator('.answer-reveal').innerText(), /Veigar/);
@@ -119,7 +128,7 @@ try {
     assert.equal(after.xp, before.xp);
     await ctx.close();
   });
-  await check('Recognised but ineligible champion is explained instead of silently corrected', async () => {
+  await check('Recognised but ineligible champion receives retry feedback', async () => {
     const { context: ctx, page } = await context();
     let seed;
     for (let i = 0; i < 100; i++) {
@@ -131,25 +140,27 @@ try {
     const wrong = CATALOG.find(e => e.category === 'champions' && !question.answerIds.includes(e.id));
     await page.getByTestId('answer-input').fill(wrong.name);
     await page.getByTestId('answer-submit').click();
-    await page.getByTestId('next-question').waitFor();
-    assert.match(await page.locator('.answer-reveal').getAttribute('class'), /miss/);
-    assert.ok((await page.locator('.answer-reveal').innerText()).includes(wrong.name));
-    assert.match(await page.locator('.answer-reveal').innerText(), /recognised/);
+    assert.equal(await page.getByTestId('answer-notice').innerText(), 'Try again');
+    assert.equal(await page.getByTestId('next-question').count(), 0);
+    assert.equal((await questionFor(page)).id, question.id);
     await ctx.close();
   });
-  await check('Mobile 390/360 home, practice, keyboard name assist and no horizontal overflow', async () => {
-    for (const width of [390, 360]) {
+  await check('Mobile home, practice and keyboard name assist at 320–390 px', async () => {
+    for (const width of [390, 360, 320]) {
       const { context: ctx, page } = await context({ width, height: 844 });
       await openHome(page);
       await noOverflow(page);
+      if (width === 390) await page.screenshot({ path: path.join(output, 'home-mobile.png'), fullPage: true });
       await page.getByRole('button', { name: 'Champions', exact: true }).click();
-      await page.getByRole('button', { name: /NO PRESSURE.*Practice|Practice.*NO PRESSURE/ }).click();
+      await page.getByRole('button', { name: 'Practice', exact: true }).click();
       await page.getByTestId('answer-input').waitFor();
       assert.equal((await questionFor(page)).category, 'champions');
       assert.ok(await page.getByLabel('No time limit').isVisible());
       await page.clock.fastForward(30_000);
       assert.ok(await page.getByTestId('answer-input').isVisible());
-      await page.getByTestId('answer-input').fill('Veeg');
+      const inputBounds = await page.getByTestId('answer-input').boundingBox();
+      assert.ok(inputBounds && inputBounds.y + inputBounds.height <= 844, 'Answer field is visible without scrolling');
+      await page.getByTestId('answer-input').fill('Veiagr');
       await page.getByTestId('answer-input').press('ArrowDown');
       await page.getByTestId('answer-input').press('Enter');
       assert.equal(await page.getByTestId('answer-input').inputValue(), 'Veigar');

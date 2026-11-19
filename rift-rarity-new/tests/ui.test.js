@@ -196,6 +196,12 @@ test('Recognised wrong answers show Try again without revealing answers', async 
   assert.equal(byTestId('depth-value').textContent, '0m');
 });
 
+test('A previous challenge link still opens its original first question', async () => {
+  await mount({ query: '?challenge=legacy-content-regression&category=all&v=rr4-ddragon-16.23.1-1' });
+  await click(/Accept challenge/);
+  assert.equal(currentQuestion().id, 'c-initial-b');
+});
+
 test('A full seven-answer run produces results and one saved award even under StrictMode', async () => {
   await startChallenge(findSeed(() => true), true);
   await finishPerfectRun();
@@ -218,9 +224,9 @@ test('A full seven-answer run produces results and one saved award even under St
 test('Category selection, untimed Practice and keyboard nickname assist work together', async () => {
   await mount();
   await click('Champions');
-  await click(/NO PRESSURE.*Practice|Practice.*NO PRESSURE/);
+  await click(document.querySelector('.mode-practice'));
   assert.equal(currentQuestion().category, 'champions');
-  assert.match(document.body.textContent, /NO RUSH/);
+  assert.match(document.body.textContent, /No timer/);
   now += 60_000;
   await act(async () => { for (const callback of [...intervals.values()]) callback(); });
   assert.ok(byTestId('answer-input'), 'Practice remains active after a minute');
@@ -285,7 +291,7 @@ test('Malformed legacy progress does not blank React and valid old records migra
 test('ArrowUp begins at the last name suggestion; pointer selection keeps the field usable', async () => {
   await mount();
   await click('Champions');
-  await click(/NO PRESSURE.*Practice|Practice.*NO PRESSURE/);
+  await click(document.querySelector('.mode-practice'));
   await input('son');
   const options = [...document.querySelectorAll('[role="option"]')];
   assert.ok(options.length > 1);

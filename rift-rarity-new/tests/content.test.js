@@ -55,7 +55,8 @@ test('questions and version explicitly preserve offline data provenance',()=>{
 test('every champion and item has a real locally bundled PNG',()=>{
  for(const e of CATALOG.filter(e=>e.category!=='map')){
   assert.ok(e.image.startsWith('/assets/'));
-  const bytes=fs.readFileSync(new URL(`../public${e.image}`,import.meta.url));
+  const filename=e.image.split('/').at(-1);
+  const bytes=fs.readFileSync(new URL(`../src/assets/${filename}`,import.meta.url));
   assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a',e.name);
   assert.ok(bytes.length>100,e.name);
  }

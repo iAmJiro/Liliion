@@ -1,17 +1,26 @@
-// Generated offline by scripts/update-data.mjs. Do not hand-edit.
-export const CONTENT_VERSION = "rr4-ddragon-16.23.1-1";
-export const CONTENT_META = {
+// The catalogue and original questions were generated offline from pinned snapshots.
+import { championQuestions } from "./champion-questions.js";
+import { itemQuestions } from "./item-questions.js";
+import { mapQuestions } from "./map-questions.js";
+
+const BASE_CONTENT_VERSION = "rr4-ddragon-16.23.1-1";
+export const CONTENT_VERSION = "rr4-ddragon-16.23.1-2";
+const CATALOG_META = {
   "patch": "16.23.1",
   "champions": 173,
   "items": 210,
   "map": 36,
-  "questions": 80,
   "sourceUrls": [
     "https://developer.riotgames.com/docs/lol#data-dragon",
     "https://ddragon.leagueoflegends.com/cdn/16.23.1/data/en_US/champion.json",
     "https://ddragon.leagueoflegends.com/cdn/16.23.1/data/en_US/item.json",
     "https://www.leagueoflegends.com/en-us/how-to-play/",
-    "https://www.leagueoflegends.com/en-gb/news/game-updates/patch-26-1-notes/"
+    "https://www.leagueoflegends.com/en-gb/news/game-updates/patch-26-1-notes/",
+    "https://na.leagueoflegends.com/en/featured/preseason-2017/gameplay",
+    "https://www.leagueoflegends.com/en-au/news/game-updates/patch-9-23-notes/",
+    "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-23-notes/",
+    "https://www.leagueoflegends.com/en-us/news/game-updates/patch-12-22-notes/",
+    "https://www.leagueoflegends.com/en-us/news/game-updates/patch-14-1-notes/"
   ],
   "rarityModel": "Editorial familiarity bands; not live pick rates or player-answer statistics.",
   "itemScope": "Base Data Dragon map-11 shop records, canonical-name deduplication, 3 named auto-upgrades, known ARAM-only Guardian entries and Cappa Juice excluded. Published data is a versioned reference, not a claim of real-time shop parity."
@@ -12232,7 +12241,7 @@ export const CATALOG = [
     "art": "https://ddragon.leagueoflegends.com/cdn/16.23.1/img/champion/Zyra.png"
   }
 ];
-export const QUESTIONS = [
+const BASE_QUESTIONS = [
   {
     "id": "c-any",
     "category": "champions",
@@ -15302,3 +15311,21 @@ export const QUESTIONS = [
     "explanation": "Summoner’s Rift and Howling Abyss count. This question is about map names, not queue names."
   }
 ];
+
+export const QUESTIONS = [
+  ...BASE_QUESTIONS,
+  ...championQuestions(CATALOG),
+  ...itemQuestions(CATALOG),
+  ...mapQuestions,
+];
+
+export const CONTENT_META = {
+  ...CATALOG_META,
+  questions: QUESTIONS.length,
+};
+
+export function questionBankFor(version) {
+  if (version === CONTENT_VERSION) return QUESTIONS;
+  if (version === BASE_CONTENT_VERSION) return BASE_QUESTIONS;
+  return null;
+}

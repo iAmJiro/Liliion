@@ -1,5 +1,5 @@
 /** Deterministic expedition transitions. The UI supplies performance.now() before dispatch. */
-import { CATALOG, QUESTIONS, CONTENT_VERSION } from "./data/content.js";
+import { CATALOG, QUESTIONS, CONTENT_VERSION, questionBankFor } from "./data/content.js";
 import {
   chooseQuestions,
   dailyKey,
@@ -31,7 +31,8 @@ export function newExpedition(mode = "classic", options = {}) {
     mode === "daily"
       ? `daily:${CONTENT_VERSION}:${day}`
       : String(options.seed ?? `expedition:${day}:${now}`);
-  const bank = options.questions || QUESTIONS;
+  const challengeBank = mode === "classic" ? questionBankFor(options.bankVersion) : null;
+  const bank = options.questions || challengeBank || QUESTIONS;
   const questions = chooseQuestions(
     bank,
     seed,
@@ -47,7 +48,7 @@ export function newExpedition(mode = "classic", options = {}) {
     category,
     seed,
     day,
-    bankVersion: CONTENT_VERSION,
+    bankVersion: challengeBank ? options.bankVersion : CONTENT_VERSION,
     questions,
     index: 0,
     depth: 0,
@@ -67,8 +68,9 @@ export function newExpedition(mode = "classic", options = {}) {
     newRelics: [],
   };
 }
-function examplesFor(question) {
+function examplesFor(question, submittedId) {
   return question.answerIds
+    .filter((id) => id !== submittedId)
     .map((id) => getEntity(id))
     .filter(Boolean)
     .sort(
@@ -140,7 +142,7 @@ export function settle(game, value = "", options = {}) {
     correct,
     kind,
     corrected: Boolean(correct && resolved.corrected),
-    examples: examplesFor(question),
+    examples: examplesFor(question, entity?.id),
   };
   // Unlock every crossed milestone, including those skipped by a large reward.
   const newRelics = [

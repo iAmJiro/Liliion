@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CATALOG, QUESTIONS } from '../src/data/content.js';
+import { CATALOG, CONTENT_VERSION, QUESTIONS } from '../src/data/content.js';
 import { getEntity } from '../src/engine.js';
 import { newExpedition, settle, nextQuestion, finishRun } from '../src/session.js';
 
@@ -20,6 +20,28 @@ test('classic has seven timed questions and practice is untimed', () => {
   assert.equal(make('practice').deadline, null);
   assert.equal(make('practice').durationMs, 0);
 });
+test('a previous challenge bank keeps the original seeded question order', () => {
+  const bankVersion = 'rr4-ddragon-16.23.1-1';
+  const game = make('classic', { seed: 'legacy-content-regression', bankVersion });
+
+  assert.equal(game.bankVersion, bankVersion);
+  assert.deepEqual(game.questions.map(q => q.id), [
+    'c-initial-b',
+    'c-initial-d',
+    'i-stat-ap',
+    'c-energy',
+    'i-stat-health',
+    'm-epic',
+    'm-monsters',
+  ]);
+});
+test('a new run uses the expanded question bank', () => {
+  const game = make('endless');
+
+  assert.equal(game.bankVersion, CONTENT_VERSION);
+  assert.ok(game.questions.length > 80);
+  assert.deepEqual(new Set(game.questions.map(q => q.id)), new Set(QUESTIONS.map(q => q.id)));
+});
 test('a success scores once; revealing ignores extra submissions', () => {
   const game = make();
   const result = settle(game, valid(game), { now: 2000 });
@@ -28,6 +50,27 @@ test('a success scores once; revealing ignores extra submissions', () => {
   assert.ok(result.depth >= 100);
   assert.equal(settle(result, valid(game), { now: 2001 }), result);
   assert.equal(nextQuestion(result, { now: 3000 }).index, 1);
+});
+test('correct reveals show only other answers and a skip shows the single valid answer', () => {
+  const game = make();
+  const submittedId = 'champion:Veigar';
+  const otherId = 'champion:Lulu';
+  const question = { ...game.questions[game.index], category: 'champions', answerIds: [submittedId] };
+  const singleAnswerGame = { ...game, questions: [question] };
+  const multipleAnswerGame = {
+    ...game,
+    questions: [{ ...question, answerIds: [submittedId, otherId] }],
+  };
+
+  const correct = settle(singleAnswerGame, 'Veigar', { now: 2000 });
+  const skipped = settle(singleAnswerGame, '', { now: 2000 });
+  const correctWithOtherAnswer = settle(multipleAnswerGame, 'Veigar', { now: 2000 });
+
+  assert.equal(correct.last.kind, 'correct');
+  assert.deepEqual(correct.last.examples, []);
+  assert.equal(skipped.last.kind, 'skipped');
+  assert.deepEqual(skipped.last.examples.map(e => e.id), [submittedId]);
+  assert.deepEqual(correctWithOtherAnswer.last.examples.map(e => e.id), [otherId]);
 });
 test('unknown spelling does not consume question, depth, life, streak or time', () => {
   const game = { ...make('endless'), streak: 3, depth: 650 };
